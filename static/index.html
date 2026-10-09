@@ -9,47 +9,49 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
-    .dial-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.25); }
+    input[type=range] {
+      accent-color: #ffffff;
+    }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body class="bg-black text-neutral-100 min-h-screen">
 
   <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+  <header class="border-b border-neutral-800 bg-neutral-950/90 backdrop-blur sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/30">
+        <div class="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center font-bold text-xl border border-neutral-300">
           <i class="fa-solid fa-brain"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Kasparro Screening System</h1>
-          <p class="text-xs text-slate-400">SDE Internship • Python Fundamentals & Agentic AI Exposure</p>
+          <h1 class="text-lg font-bold text-white tracking-tight">Kasparro Screening System</h1>
+          <p class="text-xs text-neutral-400">SDE Internship • Python Fundamentals & Agentic AI Exposure</p>
         </div>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <button id="btnPreloadSample" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-folder-open"></i>
+        <button id="btnPreloadSample" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 text-neutral-200 hover:bg-neutral-800 border border-neutral-700 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-folder-open text-neutral-400"></i>
           <span>Screen 50 Sample Resumes</span>
         </button>
-        <div class="flex items-center space-x-1 bg-slate-900/60 p-1 rounded-xl border border-slate-700/80">
-          <span class="text-[11px] font-semibold text-slate-400 px-2 flex items-center space-x-1">
-            <i class="fa-solid fa-download text-emerald-400"></i>
-            <span>Export (<span id="headerScopeTxt" class="text-amber-300 font-bold">All</span>):</span>
+        <div class="flex items-center space-x-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
+          <span class="text-[11px] font-semibold text-neutral-400 px-2 flex items-center space-x-1">
+            <i class="fa-solid fa-download text-neutral-400"></i>
+            <span>Export (<span id="headerScopeTxt" class="text-white font-bold">All</span>):</span>
           </span>
-          <button id="btnHeaderExcel" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 transition flex items-center space-x-1" title="Download Excel for current filter/selection">
-            <i class="fa-solid fa-file-excel text-emerald-400 text-[11px]"></i>
+          <button id="btnHeaderExcel" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download Excel for current filter/selection">
+            <i class="fa-solid fa-file-excel text-neutral-300 text-[11px]"></i>
             <span>Excel</span>
           </button>
-          <button id="btnHeaderDocx" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 transition flex items-center space-x-1" title="Download Word Doc for current filter/selection">
-            <i class="fa-solid fa-file-word text-blue-400 text-[11px]"></i>
+          <button id="btnHeaderDocx" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download Word Doc for current filter/selection">
+            <i class="fa-solid fa-file-word text-neutral-300 text-[11px]"></i>
             <span>Word</span>
           </button>
-          <button id="btnHeaderCsv" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1" title="Download CSV for current filter/selection">
-            <i class="fa-solid fa-file-csv text-[11px]"></i>
+          <button id="btnHeaderCsv" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download CSV for current filter/selection">
+            <i class="fa-solid fa-file-csv text-neutral-300 text-[11px]"></i>
             <span>CSV</span>
           </button>
-          <button id="btnExportJson" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1" title="Download JSON for current filter/selection">
-            <i class="fa-solid fa-code text-[11px]"></i>
+          <button id="btnExportJson" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download JSON for current filter/selection">
+            <i class="fa-solid fa-code text-neutral-300 text-[11px]"></i>
             <span>JSON</span>
           </button>
         </div>
@@ -59,165 +61,90 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- Upload & Interactive Controls Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Folder Upload Box -->
-      <div class="lg:col-span-1 bg-slate-800/60 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-              <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i>
-              <span>Ingest Resumes</span>
-            </h2>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Up to 100 Files</span>
-          </div>
-          <p class="text-xs text-slate-400 mb-4">Upload a resume folder (PDF, DOCX, TXT) or individual files for batch screening.</p>
-          
-          <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-900/40 hover:bg-slate-900/80">
-            <i class="fa-solid fa-folder-plus text-3xl text-slate-500 mb-2"></i>
-            <p class="text-sm font-medium text-slate-300">Click to select folder or files</p>
-            <p class="text-xs text-slate-500 mt-1">PDF, DOCX, TXT supported</p>
-            <input type="file" id="fileInput" webkitdirectory directory multiple class="hidden">
-            <input type="file" id="multiFileInput" multiple class="hidden">
-          </div>
-          <div class="flex justify-center space-x-4 mt-2">
-            <button id="btnSelectFolder" class="text-xs text-blue-400 hover:underline">Select Folder</button>
-            <span class="text-slate-600">•</span>
-            <button id="btnSelectFiles" class="text-xs text-blue-400 hover:underline">Select Files</button>
-          </div>
-          <div id="fileUploadStatus" class="mt-3 text-xs text-slate-400 hidden"></div>
-        </div>
-
-        <button id="btnSubmitScreening" class="w-full mt-4 py-2.5 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2">
-          <i class="fa-solid fa-play"></i>
-          <span>Run Screening & Ranking</span>
-        </button>
+    <!-- Ingest Resumes Box -->
+    <div class="max-w-2xl mx-auto bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-neutral-100 flex items-center space-x-2">
+          <i class="fa-solid fa-cloud-arrow-up text-neutral-400"></i>
+          <span>Ingest Resumes</span>
+        </h2>
+        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700">Up to 100 Files</span>
       </div>
-
-      <!-- Interactive Filters & Dials -->
-      <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700 rounded-2xl p-6 space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
-          <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-            <i class="fa-solid fa-sliders text-indigo-400"></i>
-            <span>Interactive Filter Dials & Requirements</span>
-          </h2>
-          <span class="text-xs text-slate-400">Real-time candidate thresholding</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <!-- CGPA Dial / Slider -->
-          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-3 dial-glow">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
-                <i class="fa-solid fa-graduation-cap text-yellow-400"></i>
-                <span>Minimum CGPA Dial</span>
-              </label>
-              <span id="cgpaValueDisplay" class="text-sm font-bold px-2.5 py-0.5 rounded-lg bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Any CGPA</span>
-            </div>
-            <input type="range" id="cgpaSlider" min="0" max="10" step="0.5" value="0" class="w-full accent-yellow-400 cursor-pointer">
-            <div class="flex justify-between text-[10px] text-slate-500">
-              <span>Any (0.0)</span>
-              <span>6.0</span>
-              <span>7.0</span>
-              <span>8.0</span>
-              <span>9.0</span>
-              <span>10.0</span>
-            </div>
-            <p class="text-[11px] text-slate-400">Normalizes 10-point, 4.0 GPA, and percentages. Candidates without stated CGPA are flagged.</p>
-          </div>
-
-          <!-- GitHub Profile Filter -->
-          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
-                <i class="fa-brands fa-github text-slate-300"></i>
-                <span>GitHub Profile Presence</span>
-              </label>
-              <input type="checkbox" id="chkRequireGithub" class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-0">
-            </div>
-            <p class="text-[11px] text-slate-400">Requires a public GitHub profile link. Extracts account age in years, public repositories, and commit history.</p>
-            <div class="flex items-center space-x-2 text-[10px] text-indigo-300 bg-indigo-950/40 px-2 py-1 rounded border border-indigo-900">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>Rate-limit safe: includes fallback and local caching.</span>
-            </div>
-          </div>
-
-          <!-- AI Background Requirement -->
-          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-2">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
-                <i class="fa-solid fa-robot text-emerald-400"></i>
-                <span>Mandatory AI / Agentic Project</span>
-              </label>
-              <input type="checkbox" id="chkRequireAi" checked class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-0">
-            </div>
-            <p class="text-[11px] text-slate-400">Verifies genuine exposure to LangChain, LangGraph, ADK, RAG, tool-calling agents, or vector search.</p>
-          </div>
-
-          <!-- Related Experience Filter -->
-          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-2">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
-                <i class="fa-solid fa-briefcase text-blue-400"></i>
-                <span>Require Related Work/Internship</span>
-              </label>
-              <input type="checkbox" id="chkRequireExp" class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-0">
-            </div>
-            <p class="text-[11px] text-slate-400">Filters for candidates with verified software engineering, AI/ML, or backend internship experience.</p>
-          </div>
-
-        </div>
+      <p class="text-xs text-neutral-400 mb-4">Upload a resume folder (PDF, DOCX, TXT) or individual files for batch screening.</p>
+      
+      <div id="dropZone" class="border-2 border-dashed border-neutral-700 hover:border-neutral-400 rounded-xl p-8 text-center cursor-pointer transition bg-black/40 hover:bg-neutral-800/40">
+        <i class="fa-solid fa-folder-plus text-3xl text-neutral-500 mb-2"></i>
+        <p class="text-sm font-medium text-neutral-200">Click to select folder or files</p>
+        <p class="text-xs text-neutral-500 mt-1">PDF, DOCX, TXT supported</p>
+        <input type="file" id="fileInput" webkitdirectory directory multiple class="hidden">
+        <input type="file" id="multiFileInput" multiple class="hidden">
       </div>
+      <div class="flex justify-center space-x-4 mt-3">
+        <button id="btnSelectFolder" class="text-xs text-neutral-300 hover:text-white underline">Select Folder</button>
+        <span class="text-neutral-600">•</span>
+        <button id="btnSelectFiles" class="text-xs text-neutral-300 hover:text-white underline">Select Files</button>
+      </div>
+      <div id="fileUploadStatus" class="mt-3 text-xs text-neutral-400 text-center hidden"></div>
 
+      <button id="btnSubmitScreening" class="w-full mt-5 py-2.5 px-4 rounded-xl font-bold text-sm bg-white hover:bg-neutral-200 text-black border border-white transition flex items-center justify-center space-x-2 shadow-sm">
+        <i class="fa-solid fa-play"></i>
+        <span>Run Screening & Ranking</span>
+      </button>
+    </div>
+
+    <!-- Empty State: shown on fresh load, hidden once results arrive -->
+    <div id="emptyState" class="max-w-2xl mx-auto bg-neutral-900/50 border border-dashed border-neutral-800 rounded-2xl p-10 text-center">
+      <i class="fa-solid fa-inbox text-3xl text-neutral-600 mb-3"></i>
+      <p class="text-sm font-semibold text-neutral-300">No results yet</p>
+      <p class="text-xs text-neutral-500 mt-1">Upload resumes above and click <span class="text-neutral-300 font-semibold">Run Screening & Ranking</span> to see ranked candidates here.</p>
+      <button id="btnClearResults" class="hidden mt-4 text-xs text-neutral-500 hover:text-white underline">Clear results</button>
     </div>
 
     <!-- Batch Summary Cards -->
     <div id="batchSummarySection" class="hidden space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
-          <p class="text-xs font-medium text-slate-400">Total Ingested</p>
-          <p id="sumTotal" class="text-2xl font-bold text-slate-100 mt-1">0</p>
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-neutral-400">Total Ingested</p>
+          <p id="sumTotal" class="text-2xl font-bold text-white mt-1">0</p>
         </div>
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
-          <p class="text-xs font-medium text-slate-400">Successfully Parsed</p>
-          <p id="sumParsed" class="text-2xl font-bold text-blue-400 mt-1">0</p>
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-neutral-400">Successfully Parsed</p>
+          <p id="sumParsed" class="text-2xl font-bold text-white mt-1">0</p>
         </div>
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
-          <p class="text-xs font-medium text-slate-400">Eligible Candidates</p>
-          <p id="sumEligible" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-neutral-400">Eligible Candidates</p>
+          <p id="sumEligible" class="text-2xl font-bold text-white mt-1">0</p>
         </div>
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
-          <p class="text-xs font-medium text-slate-400">Disqualified</p>
-          <p id="sumRejected" class="text-2xl font-bold text-red-400 mt-1">0</p>
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-neutral-400">Disqualified</p>
+          <p id="sumRejected" class="text-2xl font-bold text-neutral-400 mt-1">0</p>
         </div>
-        <!-- Card 5 (Image-2): Interactive Cutoff Score Dialer + Average Score -->
-        <div class="bg-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/70 rounded-xl p-3.5 text-center col-span-2 md:col-span-1 flex flex-col justify-between shadow-lg shadow-amber-500/10 transition">
+        <!-- Card 5: Interactive Cutoff Score Dialer + Average Score -->
+        <div class="bg-neutral-900 border border-neutral-700 hover:border-neutral-500 rounded-xl p-3.5 text-center col-span-2 md:col-span-1 flex flex-col justify-between transition">
           <div>
             <div class="flex items-center justify-between text-xs mb-1">
-              <span class="font-bold text-slate-200 flex items-center space-x-1">
-                <i class="fa-solid fa-gauge-high text-amber-400"></i>
+              <span class="font-bold text-neutral-200 flex items-center space-x-1">
+                <i class="fa-solid fa-gauge-high text-neutral-400"></i>
                 <span>Min Passing Score:</span>
               </span>
-              <span id="scoreCutoffDisplay" class="font-extrabold text-amber-300 px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-xs">≥ 0 pts</span>
+              <span id="scoreCutoffDisplay" class="font-extrabold text-white px-2 py-0.5 rounded bg-neutral-800 border border-neutral-700 text-xs">≥ 0 pts</span>
             </div>
-            <input type="range" id="scoreCutoffSlider" min="0" max="95" step="5" value="0" class="w-full accent-amber-400 cursor-pointer">
-            <div class="flex justify-between text-[9px] text-slate-400 mt-0.5 font-medium">
+            <input type="range" id="scoreCutoffSlider" min="0" max="95" step="5" value="0" class="w-full accent-white cursor-pointer">
+            <div class="flex justify-between text-[9px] text-neutral-400 mt-0.5 font-medium">
               <span>0</span><span>40</span><span>60</span><span>80</span><span>95</span>
             </div>
           </div>
-          <div class="mt-2 pt-1.5 border-t border-slate-700/60 flex items-center justify-between">
-            <span class="text-[11px] font-medium text-slate-400">Avg Eligible Score</span>
-            <span id="sumAvgScore" class="text-lg font-extrabold text-amber-400">0 / 100</span>
+          <div class="mt-2 pt-1.5 border-t border-neutral-800 flex items-center justify-between">
+            <span class="text-[11px] font-medium text-neutral-400">Avg Eligible Score</span>
+            <span id="sumAvgScore" class="text-lg font-extrabold text-white">0 / 100</span>
           </div>
         </div>
       </div>
 
       <!-- GitHub Cohorts Distribution -->
-      <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
-        <span class="text-xs font-semibold text-slate-300 flex items-center space-x-2">
-          <i class="fa-brands fa-github text-slate-400"></i>
+      <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <span class="text-xs font-semibold text-neutral-300 flex items-center space-x-2">
+          <i class="fa-brands fa-github text-neutral-400"></i>
           <span>GitHub Developer Cohorts:</span>
         </span>
         <div id="cohortsContainer" class="flex flex-wrap gap-2 text-xs">
@@ -228,55 +155,55 @@
 
     <!-- Candidate Tabs & Search -->
     <div id="resultsSection" class="hidden space-y-6">
-      <!-- Filter Bar (Image-3 Area): Tabs + Top 5/10 Quick Filters + Search -->
-      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <!-- Filter Bar: Tabs + Top 5/10 Quick Filters + Search -->
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-neutral-800 pb-4">
         <div class="flex flex-wrap items-center gap-3">
           <!-- Main Tabs -->
           <div class="flex items-center space-x-2">
-            <button id="tabEligible" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md shadow-blue-600/30">
+            <button id="tabEligible" class="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-black transition shadow-sm">
               Ranked Eligible (<span id="countEligibleTab">0</span>)
             </button>
-            <button id="tabRejected" class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">
+            <button id="tabRejected" class="px-4 py-2 text-sm font-semibold rounded-lg bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 border border-neutral-800 transition">
               Disqualified (<span id="countRejectedTab">0</span>)
             </button>
           </div>
 
-          <!-- Top 5 / Top 10 Quick Filter Pills (Image-3 Area) -->
-          <div id="topNFilterGroup" class="flex items-center space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-700/80">
-            <span class="text-[11px] font-semibold text-slate-400 px-2 flex items-center space-x-1">
-              <i class="fa-solid fa-trophy text-amber-400 text-[10px]"></i>
+          <!-- Top 5 / Top 10 Quick Filter Pills -->
+          <div id="topNFilterGroup" class="flex items-center space-x-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
+            <span class="text-[11px] font-semibold text-neutral-400 px-2 flex items-center space-x-1">
+              <i class="fa-solid fa-trophy text-neutral-400 text-[10px]"></i>
               <span>Show:</span>
             </span>
-            <button id="btnFilterAll" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white transition">All</button>
-            <button id="btnFilterTop5" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">🏆 Top 5</button>
-            <button id="btnFilterTop10" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">🌟 Top 10</button>
-            <button id="btnFilterTop20" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Top 20</button>
+            <button id="btnFilterAll" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-black transition">All</button>
+            <button id="btnFilterTop5" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition">Top 5</button>
+            <button id="btnFilterTop10" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition">Top 10</button>
+            <button id="btnFilterTop20" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition">Top 20</button>
           </div>
 
           <!-- Quick Export Filtered Shortlist (Top 5 / 10 / 20) -->
-          <div class="flex items-center space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-700/80">
-            <span class="text-[11px] font-semibold text-slate-400 px-2 flex items-center space-x-1">
-              <i class="fa-solid fa-cloud-arrow-down text-emerald-400 text-[10px]"></i>
-              <span>Download Shortlist:</span>
+          <div class="flex items-center space-x-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
+            <span class="text-[11px] font-semibold text-neutral-400 px-2 flex items-center space-x-1">
+              <i class="fa-solid fa-cloud-arrow-down text-neutral-400 text-[10px]"></i>
+              <span>Download:</span>
             </span>
-            <button id="btnQuickExcel" class="px-2 py-1 text-xs font-semibold rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 transition flex items-center space-x-1" title="Download Excel for current view (Top 5/10/20)">
-              <i class="fa-solid fa-file-excel text-[11px]"></i>
+            <button id="btnQuickExcel" class="px-2 py-1 text-xs font-semibold rounded-lg bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download Excel for current view (Top 5/10/20)">
+              <i class="fa-solid fa-file-excel text-[11px] text-neutral-300"></i>
               <span>Excel</span>
             </button>
-            <button id="btnQuickDocx" class="px-2 py-1 text-xs font-semibold rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 transition flex items-center space-x-1" title="Download Word document for current view">
-              <i class="fa-solid fa-file-word text-[11px]"></i>
+            <button id="btnQuickDocx" class="px-2 py-1 text-xs font-semibold rounded-lg bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download Word document for current view">
+              <i class="fa-solid fa-file-word text-[11px] text-neutral-300"></i>
               <span>Docx</span>
             </button>
-            <button id="btnQuickCsv" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center space-x-1" title="Download CSV for current view">
-              <i class="fa-solid fa-file-csv text-[11px]"></i>
+            <button id="btnQuickCsv" class="px-2 py-1 text-xs font-semibold rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white border border-neutral-700 transition flex items-center space-x-1" title="Download CSV for current view">
+              <i class="fa-solid fa-file-csv text-[11px] text-neutral-300"></i>
               <span>CSV</span>
             </button>
           </div>
         </div>
 
         <div class="relative w-full lg:w-72">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
-          <input type="text" id="searchInput" placeholder="Search candidate or skill..." class="w-full bg-slate-800/80 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-neutral-500 text-xs"></i>
+          <input type="text" id="searchInput" placeholder="Search candidate or skill..." class="w-full bg-neutral-900 border border-neutral-800 rounded-lg pl-9 pr-4 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-500">
         </div>
       </div>
 
@@ -287,44 +214,44 @@
     </div>
 
     <!-- Original Resume Modal Viewer -->
-    <div id="resumeModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
-      <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+    <div id="resumeModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
+      <div class="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
         <!-- Modal Header -->
-        <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900/95">
+        <div class="px-5 py-3.5 border-b border-neutral-800 flex items-center justify-between bg-black">
           <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center">
+            <div class="w-9 h-9 rounded-xl bg-neutral-800 text-white border border-neutral-700 flex items-center justify-center">
               <i class="fa-solid fa-file-pdf text-base"></i>
             </div>
             <div>
-              <h3 id="modalCandidateName" class="text-sm font-bold text-slate-100">Original Candidate Resume</h3>
-              <p id="modalFileName" class="text-xs text-slate-400 font-mono">candidate.pdf</p>
+              <h3 id="modalCandidateName" class="text-sm font-bold text-white">Original Candidate Resume</h3>
+              <p id="modalFileName" class="text-xs text-neutral-400 font-mono">candidate.pdf</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <a id="modalNewTabBtn" href="#" target="_blank" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center space-x-1.5">
+            <a id="modalNewTabBtn" href="#" target="_blank" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition flex items-center space-x-1.5">
               <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
               <span class="hidden sm:inline">Open in</span> New Tab
             </a>
-            <a id="modalDownloadBtn" href="#" download class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow transition flex items-center space-x-1.5">
+            <a id="modalDownloadBtn" href="#" download class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white hover:bg-neutral-200 text-black border border-white transition flex items-center space-x-1.5">
               <i class="fa-solid fa-download text-[11px]"></i>
               <span>Download Original PDF</span>
             </a>
-            <button onclick="closeResumeModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition flex items-center justify-center">
+            <button onclick="closeResumeModal()" class="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white transition flex items-center justify-center">
               <i class="fa-solid fa-xmark text-sm"></i>
             </button>
           </div>
         </div>
         <!-- Modal Body: PDF iframe -->
-        <div class="flex-1 bg-slate-950 relative">
+        <div class="flex-1 bg-black relative">
           <iframe id="resumeViewerFrame" src="" class="w-full h-full border-0"></iframe>
         </div>
       </div>
     </div>
 
     <!-- Loading Spinner Overlay -->
-    <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col space-y-4">
-      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      <p id="loadingStatusText" class="text-sm font-semibold text-slate-200">Processing candidate resumes...</p>
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center flex-col space-y-4">
+      <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      <p id="loadingStatusText" class="text-sm font-semibold text-neutral-200">Processing candidate resumes...</p>
     </div>
 
   </main>
@@ -346,12 +273,6 @@
     const btnExportJson = document.getElementById('btnExportJson');
     const btnExportCsv = document.getElementById('btnExportCsv');
 
-    const cgpaSlider = document.getElementById('cgpaSlider');
-    const cgpaValueDisplay = document.getElementById('cgpaValueDisplay');
-    const chkRequireGithub = document.getElementById('chkRequireGithub');
-    const chkRequireAi = document.getElementById('chkRequireAi');
-    const chkRequireExp = document.getElementById('chkRequireExp');
-
     const loadingOverlay = document.getElementById('loadingOverlay');
     const loadingStatusText = document.getElementById('loadingStatusText');
     const batchSummarySection = document.getElementById('batchSummarySection');
@@ -363,12 +284,6 @@
     const countEligibleTab = document.getElementById('countEligibleTab');
     const countRejectedTab = document.getElementById('countRejectedTab');
     const searchInput = document.getElementById('searchInput');
-
-    // CGPA Slider Event
-    cgpaSlider.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
-      cgpaValueDisplay.textContent = val === 0 ? 'Any CGPA' : `≥ ${val.toFixed(1)} / 10`;
-    });
 
     // File selection handlers
     btnSelectFolder.addEventListener('click', () => fileInput.click());
@@ -403,16 +318,15 @@
     async function runScreeningSample() {
       showLoading('Screening 50 sample resumes from resumes/ directory...');
       try {
-        const minCgpa = parseFloat(cgpaSlider.value) > 0 ? parseFloat(cgpaSlider.value) : null;
         const resp = await fetch('/screen', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             input_dir: './resumes',
-            min_cgpa: minCgpa,
-            require_ai: chkRequireAi.checked,
-            require_experience: chkRequireExp.checked,
-            require_github_link: chkRequireGithub.checked
+            min_cgpa: null,
+            require_ai: true,
+            require_experience: false,
+            require_github_link: false
           })
         });
         if (!resp.ok) throw new Error(await resp.text());
@@ -430,12 +344,9 @@
       try {
         const formData = new FormData();
         selectedFiles.forEach(f => formData.append('files', f));
-        
-        const minCgpa = parseFloat(cgpaSlider.value) > 0 ? parseFloat(cgpaSlider.value) : null;
-        if (minCgpa !== null) formData.append('min_cgpa', minCgpa);
-        formData.append('require_ai', chkRequireAi.checked);
-        formData.append('require_experience', chkRequireExp.checked);
-        formData.append('require_github_link', chkRequireGithub.checked);
+        formData.append('require_ai', true);
+        formData.append('require_experience', false);
+        formData.append('require_github_link', false);
 
         const resp = await fetch('/upload_and_screen', {
           method: 'POST',
@@ -453,6 +364,8 @@
 
     // Render Screening Report
     function renderReport(report) {
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('btnClearResults').classList.remove('hidden');
       batchSummarySection.classList.remove('hidden');
       resultsSection.classList.remove('hidden');
 
@@ -472,8 +385,8 @@
       cohortsContainer.innerHTML = '';
       for (const [cohort, count] of Object.entries(bs.github_cohorts || {})) {
         const badge = document.createElement('span');
-        badge.className = 'px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700';
-        badge.innerHTML = `<span class="font-semibold text-blue-400">${count}</span> ${cohort}`;
+        badge.className = 'px-2.5 py-1 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700';
+        badge.innerHTML = `<span class="font-semibold text-white">${count}</span> ${cohort}`;
         cohortsContainer.appendChild(badge);
       }
 
@@ -483,7 +396,7 @@
     let currentCutoff = 0;
     let topNLimit = 'all';
 
-    // Cutoff Score Slider (Image-2 Area)
+    // Cutoff Score Slider
     const scoreCutoffSlider = document.getElementById('scoreCutoffSlider');
     const scoreCutoffDisplay = document.getElementById('scoreCutoffDisplay');
     scoreCutoffSlider.addEventListener('input', (e) => {
@@ -492,7 +405,7 @@
       renderCandidates();
     });
 
-    // Top 5 / Top 10 Quick Filter Buttons (Image-3 Area)
+    // Top 5 / Top 10 Quick Filter Buttons
     const btnFilterAll = document.getElementById('btnFilterAll');
     const btnFilterTop5 = document.getElementById('btnFilterTop5');
     const btnFilterTop10 = document.getElementById('btnFilterTop10');
@@ -500,9 +413,9 @@
 
     function setActiveTopNButton(activeBtn) {
       [btnFilterAll, btnFilterTop5, btnFilterTop10, btnFilterTop20].forEach(b => {
-        b.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition';
+        b.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition';
       });
-      activeBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white transition';
+      activeBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-black transition';
     }
 
     btnFilterAll.addEventListener('click', () => {
@@ -533,7 +446,7 @@
       let list = activeTab === 'eligible' ? [...currentReport.ranked_candidates] : [...currentReport.rejected_candidates];
       const q = searchInput.value.toLowerCase().trim();
 
-      // Apply Score Cutoff Filter for eligible candidates (Image-2 Dialer)
+      // Apply Score Cutoff Filter for eligible candidates
       if (activeTab === 'eligible' && currentCutoff > 0) {
         list = list.filter(c => c.total_score >= currentCutoff);
       }
@@ -549,7 +462,7 @@
         return inName || inEmail || inPhone || inSkills || inReasons;
       });
 
-      // Apply Top N Filter (Image-3 Area)
+      // Apply Top N Filter
       if (activeTab === 'eligible' && topNLimit !== 'all') {
         filtered = filtered.slice(0, topNLimit);
       }
@@ -568,40 +481,40 @@
       updateExportBadges(filtered.length);
 
       if (filtered.length === 0) {
-        candidatesList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-800/30 rounded-xl border border-slate-800">No candidates match the current filters or cutoff score (≥ ${currentCutoff} pts).</div>`;
+        candidatesList.innerHTML = `<div class="p-8 text-center text-neutral-400 bg-neutral-900 rounded-xl border border-neutral-800">No candidates match the current filters or cutoff score (≥ ${currentCutoff} pts).</div>`;
         return;
       }
 
       filtered.forEach(c => {
         const card = document.createElement('div');
-        card.className = 'bg-slate-800/60 border border-slate-700/80 hover:border-slate-600 rounded-xl p-5 space-y-4 transition shadow-sm';
+        card.className = 'bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-xl p-5 space-y-4 transition shadow-sm';
 
         if (c.eligible) {
           card.innerHTML = `
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-neutral-800 pb-3">
               <div class="flex items-center space-x-3">
-                <span class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 font-bold flex items-center justify-center text-sm">
+                <span class="w-9 h-9 rounded-lg bg-neutral-800 text-white border border-neutral-700 font-bold flex items-center justify-center text-sm">
                   #${c.rank}
                 </span>
                 <div>
                   <div class="flex flex-wrap items-center gap-2.5">
-                    <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                    <h3 class="text-base font-bold text-white flex items-center space-x-2">
                       <span>${c.candidate_name}</span>
                       ${c.github_metrics && c.github_metrics.username ? `
-                        <a href="https://github.com/${c.github_metrics.username}" target="_blank" title="GitHub Profile: ${c.github_metrics.username}" class="text-slate-400 hover:text-white transition">
+                        <a href="https://github.com/${c.github_metrics.username}" target="_blank" title="GitHub Profile: ${c.github_metrics.username}" class="text-neutral-400 hover:text-white transition">
                           <i class="fa-brands fa-github text-sm"></i>
                         </a>
                       ` : ''}
                     </h3>
 
-                    <!-- View Resume Link (Red Box Area in Image-1) -->
+                    <!-- View Resume Buttons -->
                     <div class="inline-flex items-center space-x-1.5">
-                      <button onclick="previewResume('${c.file_name}', '${(c.candidate_name || '').replace(/'/g, "\\'")}')" class="inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-500/20 hover:bg-red-500/35 text-red-300 hover:text-white border border-red-500/40 transition shadow-sm cursor-pointer" title="Preview Original Resume in modal">
-                        <i class="fa-solid fa-file-pdf text-red-400 text-[11px]"></i>
+                      <button onclick="previewResume('${c.file_name}', '${(c.candidate_name || '').replace(/'/g, "\\'")}')" class="inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white border border-neutral-600 transition shadow-sm cursor-pointer" title="Preview Original Resume in modal">
+                        <i class="fa-solid fa-file-pdf text-neutral-300 text-[11px]"></i>
                         <span>View Resume</span>
                         <i class="fa-solid fa-expand text-[9px] opacity-75"></i>
                       </button>
-                      <a href="/resumes/${c.file_name}" target="_blank" title="Open original ${c.file_name} in new tab" class="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition">
+                      <a href="/resumes/${c.file_name}" target="_blank" title="Open original ${c.file_name} in new tab" class="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-lg bg-neutral-950 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 transition">
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                         <span>Original File</span>
                       </a>
@@ -609,11 +522,11 @@
                   </div>
 
                   <!-- Candidate Contact Info & File -->
-                  <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                    <span class="font-mono text-slate-400">${c.file_name}</span>
-                    ${c.email ? `<span class="text-slate-300">• <i class="fa-regular fa-envelope text-blue-400 mr-1"></i>${c.email}</span>` : ''}
-                    ${c.phone ? `<span class="text-slate-300">• <i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
-                    ${c.cgpa ? `<span class="text-slate-300">• CGPA: <span class="text-yellow-400 font-semibold">${c.cgpa}</span>/10</span>` : '• CGPA: Not Listed'}
+                  <p class="text-xs text-neutral-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                    <span class="font-mono text-neutral-400">${c.file_name}</span>
+                    ${c.email ? `<span class="text-neutral-300">• <i class="fa-regular fa-envelope text-neutral-400 mr-1"></i>${c.email}</span>` : ''}
+                    ${c.phone ? `<span class="text-neutral-300">• <i class="fa-solid fa-phone text-neutral-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
+                    ${c.cgpa ? `<span class="text-neutral-300">• CGPA: <span class="text-white font-semibold">${c.cgpa}</span>/10</span>` : '• CGPA: Not Listed'}
                   </p>
                 </div>
               </div>
@@ -621,59 +534,59 @@
               <!-- Score Badge -->
               <div class="flex items-center space-x-4">
                 <div class="text-right">
-                  <span class="text-xs text-slate-400 block">Total Score</span>
-                  <span class="text-xl font-extrabold text-emerald-400">${c.total_score.toFixed(1)}<span class="text-xs text-slate-500"> / 100</span></span>
+                  <span class="text-xs text-neutral-400 block">Total Score</span>
+                  <span class="text-xl font-extrabold text-white">${c.total_score.toFixed(1)}<span class="text-xs text-neutral-500"> / 100</span></span>
                 </div>
               </div>
             </div>
 
             <!-- Score Breakdown Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs bg-slate-900/50 p-3 rounded-lg border border-slate-800">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs bg-black/60 p-3 rounded-lg border border-neutral-800">
               <div>
-                <span class="text-slate-400 block text-[10px]">AI Project Depth (40)</span>
-                <span class="font-bold text-blue-400">${c.score_breakdown.ai_project_depth} pts</span>
+                <span class="text-neutral-400 block text-[10px]">AI Project Depth (40)</span>
+                <span class="font-bold text-white">${c.score_breakdown.ai_project_depth} pts</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px]">Python & Backend (30)</span>
-                <span class="font-bold text-indigo-400">${c.score_breakdown.python_backend} pts</span>
+                <span class="text-neutral-400 block text-[10px]">Python & Backend (30)</span>
+                <span class="font-bold text-white">${c.score_breakdown.python_backend} pts</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px]">Cloud & Fullstack (15)</span>
-                <span class="font-bold text-cyan-400">${c.score_breakdown.cloud_fullstack} pts</span>
+                <span class="text-neutral-400 block text-[10px]">Cloud & Fullstack (15)</span>
+                <span class="font-bold text-white">${c.score_breakdown.cloud_fullstack} pts</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px]">GitHub Activity (10)</span>
-                <span class="font-bold text-purple-400">${c.score_breakdown.github} pts</span>
+                <span class="text-neutral-400 block text-[10px]">GitHub Activity (10)</span>
+                <span class="font-bold text-white">${c.score_breakdown.github} pts</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[10px]">Engineering Depth (5)</span>
-                <span class="font-bold text-emerald-400">${c.score_breakdown.engineering_depth} pts</span>
+                <span class="text-neutral-400 block text-[10px]">Engineering Depth (5)</span>
+                <span class="font-bold text-white">${c.score_breakdown.engineering_depth} pts</span>
               </div>
             </div>
 
             <!-- GitHub Metrics & Cohort -->
             ${c.github_metrics && c.github_metrics.status === 'enriched' ? `
-              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300 bg-slate-900/40 p-2.5 rounded-lg border border-slate-800/80">
-                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold flex items-center space-x-1">
+              <div class="flex flex-wrap items-center gap-2 text-xs text-neutral-300 bg-black/40 p-2.5 rounded-lg border border-neutral-800">
+                <span class="px-2 py-0.5 rounded bg-neutral-800 text-neutral-200 border border-neutral-700 font-semibold flex items-center space-x-1">
                   <i class="fa-brands fa-github"></i>
                   <span>${c.github_metrics.cohort}</span>
                 </span>
-                <span class="text-slate-400">•</span>
-                <span><strong class="text-slate-200">${c.github_metrics.account_age_years}</strong> yrs on GitHub</span>
-                <span class="text-slate-400">•</span>
-                <span><strong class="text-slate-200">${c.github_metrics.public_repos}</strong> repos (${c.github_metrics.original_repos_count || 0} original)</span>
-                <span class="text-slate-400">•</span>
-                <span><strong class="text-emerald-400">${c.github_metrics.total_contributions || c.github_metrics.recent_commits}</strong> contributions</span>
-                <span class="text-slate-400">•</span>
-                <span><strong class="text-blue-400">${c.github_metrics.recent_commits}</strong> commits</span>
-                ${c.github_metrics.prs_count > 0 ? `<span class="text-slate-400">•</span><span><strong class="text-indigo-400">${c.github_metrics.prs_count}</strong> PRs</span>` : ''}
-                ${c.github_metrics.total_stars > 0 ? `<span class="text-slate-400">•</span><span><i class="fa-solid fa-star text-yellow-400 text-[10px]"></i> <strong class="text-yellow-400">${c.github_metrics.total_stars}</strong> stars</span>` : ''}
+                <span class="text-neutral-500">•</span>
+                <span><strong class="text-white">${c.github_metrics.account_age_years}</strong> yrs on GitHub</span>
+                <span class="text-neutral-500">•</span>
+                <span><strong class="text-white">${c.github_metrics.public_repos}</strong> repos (${c.github_metrics.original_repos_count || 0} original)</span>
+                <span class="text-neutral-500">•</span>
+                <span><strong class="text-white">${c.github_metrics.total_contributions || c.github_metrics.recent_commits}</strong> contributions</span>
+                <span class="text-neutral-500">•</span>
+                <span><strong class="text-white">${c.github_metrics.recent_commits}</strong> commits</span>
+                ${c.github_metrics.prs_count > 0 ? `<span class="text-neutral-500">•</span><span><strong class="text-white">${c.github_metrics.prs_count}</strong> PRs</span>` : ''}
+                ${c.github_metrics.total_stars > 0 ? `<span class="text-neutral-500">•</span><span><i class="fa-solid fa-star text-neutral-400 text-[10px]"></i> <strong class="text-white">${c.github_metrics.total_stars}</strong> stars</span>` : ''}
               </div>
             ` : ''}
 
             <!-- 50-100 Word Evaluation Justification -->
-            <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-3 text-xs leading-relaxed text-slate-300">
-              <span class="text-[11px] font-bold text-blue-400 uppercase tracking-wider block mb-1">
+            <div class="bg-black/40 border border-neutral-800 rounded-lg p-3 text-xs leading-relaxed text-neutral-300">
+              <span class="text-[11px] font-bold text-neutral-200 uppercase tracking-wider block mb-1">
                 <i class="fa-solid fa-file-lines mr-1"></i>50–100 Word Evaluation Justification:
               </span>
               <p>${c.reason_50_to_100_words}</p>
@@ -681,48 +594,48 @@
 
             <!-- Skills & Strengths Badges -->
             <div class="flex flex-wrap gap-1.5 pt-1">
-              ${c.matched_skills.map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-slate-700/50 text-slate-300 border border-slate-600/40">${s}</span>`).join('')}
+              ${c.matched_skills.map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-neutral-800 text-neutral-300 border border-neutral-700">${s}</span>`).join('')}
             </div>
           `;
         } else {
           // Ineligible Candidate Card
           card.innerHTML = `
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-neutral-800 pb-3">
               <div>
                 <div class="flex flex-wrap items-center gap-2.5">
-                  <h3 class="text-base font-bold text-slate-200">${c.candidate_name}</h3>
+                  <h3 class="text-base font-bold text-neutral-200">${c.candidate_name}</h3>
                   <!-- View Resume Link for Disqualified Candidate -->
                   <div class="inline-flex items-center space-x-1.5">
-                    <button onclick="previewResume('${c.file_name}', '${(c.candidate_name || '').replace(/'/g, "\\'")}')" class="inline-flex items-center space-x-1.5 px-2 py-0.5 text-xs font-semibold rounded-lg bg-red-500/20 hover:bg-red-500/35 text-red-300 hover:text-white border border-red-500/30 transition cursor-pointer" title="Preview Original Resume in modal">
-                      <i class="fa-solid fa-file-pdf text-[11px]"></i>
+                    <button onclick="previewResume('${c.file_name}', '${(c.candidate_name || '').replace(/'/g, "\\'")}')" class="inline-flex items-center space-x-1.5 px-2 py-0.5 text-xs font-semibold rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white border border-neutral-700 transition cursor-pointer" title="Preview Original Resume in modal">
+                      <i class="fa-solid fa-file-pdf text-[11px] text-neutral-400"></i>
                       <span>View Resume</span>
                       <i class="fa-solid fa-expand text-[9px] opacity-75"></i>
                     </button>
-                    <a href="/resumes/${c.file_name}" target="_blank" title="Open original ${c.file_name} in new tab" class="inline-flex items-center space-x-1 px-2 py-0.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition">
+                    <a href="/resumes/${c.file_name}" target="_blank" title="Open original ${c.file_name} in new tab" class="inline-flex items-center space-x-1 px-2 py-0.5 text-xs font-medium rounded-lg bg-neutral-950 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 transition">
                       <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                       <span>Original File</span>
                     </a>
                   </div>
                 </div>
-                <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                  <span class="font-mono text-slate-400">${c.file_name}</span>
-                  ${c.email ? `<span class="text-slate-300">• <i class="fa-regular fa-envelope text-blue-400 mr-1"></i>${c.email}</span>` : ''}
-                  ${c.phone ? `<span class="text-slate-300">• <i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
-                  ${c.cgpa ? `<span class="text-slate-300">• CGPA: <span class="text-yellow-400 font-semibold">${c.cgpa}</span>/10</span>` : '• CGPA: Not Listed'}
+                <p class="text-xs text-neutral-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                  <span class="font-mono text-neutral-400">${c.file_name}</span>
+                  ${c.email ? `<span class="text-neutral-300">• <i class="fa-regular fa-envelope text-neutral-400 mr-1"></i>${c.email}</span>` : ''}
+                  ${c.phone ? `<span class="text-neutral-300">• <i class="fa-solid fa-phone text-neutral-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
+                  ${c.cgpa ? `<span class="text-neutral-300">• CGPA: <span class="text-white font-semibold">${c.cgpa}</span>/10</span>` : '• CGPA: Not Listed'}
                 </p>
               </div>
-              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-neutral-800 text-neutral-400 border border-neutral-700">
                 Disqualified
               </span>
             </div>
 
             <!-- Rejection Reasons -->
             <div class="space-y-1.5">
-              <span class="text-[11px] font-bold text-red-400 uppercase tracking-wider block">Explicit Disqualification Reasons:</span>
+              <span class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider block">Explicit Disqualification Reasons:</span>
               <div class="flex flex-wrap gap-2">
                 ${c.rejection_reasons.map(r => `
-                  <span class="px-2.5 py-1 text-xs rounded-lg bg-red-950/40 text-red-300 border border-red-800/60 flex items-center space-x-1.5">
-                    <i class="fa-solid fa-circle-xmark text-red-400"></i>
+                  <span class="px-2.5 py-1 text-xs rounded-lg bg-black text-neutral-300 border border-neutral-800 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-circle-xmark text-neutral-500"></i>
                     <span>${r}</span>
                   </span>
                 `).join('')}
@@ -730,8 +643,8 @@
             </div>
 
             <!-- 50-100 Word Rejection Reason -->
-            <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-3 text-xs leading-relaxed text-slate-400">
-              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <div class="bg-black/40 border border-neutral-800 rounded-lg p-3 text-xs leading-relaxed text-neutral-400">
+              <span class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                 Evaluation Notes:
               </span>
               <p>${c.reason_50_to_100_words}</p>
@@ -739,7 +652,7 @@
 
             <!-- Matched Skills -->
             <div class="flex flex-wrap gap-1.5 pt-1">
-              ${c.matched_skills.map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-slate-800 text-slate-400 border border-slate-700">${s}</span>`).join('')}
+              ${c.matched_skills.map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-neutral-800 text-neutral-400 border border-neutral-700">${s}</span>`).join('')}
             </div>
           `;
         }
@@ -751,15 +664,15 @@
     // Tabs
     tabEligible.addEventListener('click', () => {
       activeTab = 'eligible';
-      tabEligible.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md shadow-blue-600/30';
-      tabRejected.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+      tabEligible.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-black transition shadow-sm';
+      tabRejected.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 border border-neutral-800 transition';
       renderCandidates();
     });
 
     tabRejected.addEventListener('click', () => {
       activeTab = 'rejected';
-      tabRejected.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white shadow-md shadow-red-600/30';
-      tabEligible.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+      tabRejected.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-black transition shadow-sm';
+      tabEligible.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 border border-neutral-800 transition';
       renderCandidates();
     });
 
@@ -913,6 +826,22 @@
     document.getElementById('btnQuickDocx').addEventListener('click', exportFilteredDocx);
     document.getElementById('btnQuickCsv').addEventListener('click', exportFilteredCsv);
 
+    // Clear / reset to blank state (memory + uploads on server, UI locally)
+    document.getElementById('btnClearResults').addEventListener('click', async () => {
+      try { await fetch('/clear', { method: 'POST' }); } catch (e) {}
+      currentReport = null;
+      selectedFiles = [];
+      fileInput.value = '';
+      multiFileInput.value = '';
+      fileUploadStatus.classList.add('hidden');
+      batchSummarySection.classList.add('hidden');
+      resultsSection.classList.add('hidden');
+      candidatesList.innerHTML = '';
+      const empty = document.getElementById('emptyState');
+      empty.classList.remove('hidden');
+      document.getElementById('btnClearResults').classList.add('hidden');
+    });
+
     function downloadBlob(blob, filename) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -962,18 +891,12 @@
       if (e.key === 'Escape') closeResumeModal();
     });
 
-    // Auto-load existing results on page load if available
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const resp = await fetch('/results');
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data && data.ranked_candidates) {
-            currentReport = data;
-            renderReport(data);
-          }
-        }
-      } catch (e) {}
+    // Blank-start: do NOT auto-load previous /results.
+    // Page stays empty until user uploads or clicks sample screening.
+    window.addEventListener('DOMContentLoaded', () => {
+      batchSummarySection.classList.add('hidden');
+      resultsSection.classList.add('hidden');
+      document.getElementById('emptyState').classList.remove('hidden');
     });
   </script>
 </body>

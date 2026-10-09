@@ -91,15 +91,21 @@ async def upload_and_screen(
     require_experience: bool = Form(False),
     require_github_link: bool = Form(False),
 ):
-    """Upload up to 100 resume files and run screening immediately."""
+    """Upload up to 100 resume files and run screening immediately (fresh batch)."""
     global latest_report
 
     if len(files) > 100:
         files = files[:100]
 
-    # Persist uploaded files into uploads directory so recruiters can view/download original files
+    # Fresh batch: clear previous uploads so results reflect ONLY this upload
     uploads_dir = settings.BASE_DIR / "uploads"
     uploads_dir.mkdir(parents=True, exist_ok=True)
+    for existing in uploads_dir.iterdir():
+        try:
+            if existing.is_file():
+                existing.unlink()
+        except Exception:
+            pass
 
     for uploaded_file in files:
         safe_name = Path(uploaded_file.filename).name
@@ -178,23 +184,31 @@ def serve_resume(file_name: str):
 
 @app.get("/results", response_model=ScreeningReport)
 def get_results():
-    """Retrieve the latest screening results."""
+    """Retrieve the latest screening results from current session only (blank on fresh load)."""
     global latest_report
     if latest_report:
         return latest_report
 
-    # Try loading from disk if available
-    if settings.OUTPUT_FILE.exists():
-        try:
-            with open(settings.OUTPUT_FILE, "r", encoding="utf-8") as f:
-                import json
-                data = json.load(f)
-                latest_report = ScreeningReport(**data)
-                return latest_report
-        except Exception:
-            pass
+    raise HTTPException(status_code=404, detail="No screening results in this session. Upload resumes first.")
 
-    raise HTTPException(status_code=404, detail="No screening results available. Run /screen first.")
+
+@app.post("/clear")
+def clear_session():
+    """Reset to blank state: clear in-memory report and uploaded files."""
+    global latest_report
+    latest_report = None
+    try:
+        up_dir = settings.BASE_DIR / "uploads"
+        if up_dir.exists():
+            for f in up_dir.iterdir():
+                try:
+                    if f.is_file():
+                        f.unlink()
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return {"status": "cleared"}
 
 
 @app.get("/download_csv")

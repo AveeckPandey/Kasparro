@@ -21,12 +21,30 @@ def test_api_dashboard_html():
 
 
 def test_api_get_results():
+    # Blank-start: fresh session has no results until screening runs
+    client.post("/clear")
+    resp = client.get("/results")
+    assert resp.status_code == 404
+
+    # After screening, results appear
+    screen = client.post("/screen", json={"input_dir": "./resumes"})
+    assert screen.status_code == 200
     resp = client.get("/results")
     assert resp.status_code == 200
     data = resp.json()
     assert "batch_summary" in data
     assert "ranked_candidates" in data
     assert len(data["ranked_candidates"]) > 0
+
+
+def test_api_clear_resets_to_blank():
+    client.post("/screen", json={"input_dir": "./resumes"})
+    assert client.get("/results").status_code == 200
+    resp = client.post("/clear")
+    assert resp.status_code == 200
+    assert client.get("/results").status_code == 404
+    # Re-screen so later export tests have data
+    client.post("/screen", json={"input_dir": "./resumes"})
 
 
 def test_api_download_csv():

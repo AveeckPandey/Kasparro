@@ -86,3 +86,31 @@ def test_dynamic_cgpa_filter():
     result = EligibilityFilter.evaluate(resume, prefs)
     assert result.eligible is False
     assert any("CGPA" in r and "below minimum threshold" in r for r in result.rejection_reasons)
+
+
+def test_cgpa_filter_excludes_missing_cgpa():
+    # A resume with no stated CGPA must not silently bypass an active dial
+    resume = ParsedResume(
+        file_name="ai_engineer.pdf",
+        file_path="dummy.pdf",
+        candidate_name="AI Engineer",
+        cgpa=None,
+        full_text="Python, LangChain, RAG, FastAPI.",
+    )
+    prefs = FilterPreferences(min_cgpa=7.5)
+    result = EligibilityFilter.evaluate(resume, prefs)
+    assert result.eligible is False
+    assert any("No stated CGPA" in r for r in result.rejection_reasons)
+
+
+def test_missing_cgpa_passes_without_dial():
+    # Without the dial, a missing CGPA must not disqualify on its own
+    resume = ParsedResume(
+        file_name="ai_engineer.pdf",
+        file_path="dummy.pdf",
+        candidate_name="AI Engineer",
+        cgpa=None,
+        full_text="Python, LangChain, RAG, FastAPI.",
+    )
+    result = EligibilityFilter.evaluate(resume, FilterPreferences())
+    assert result.eligible is True

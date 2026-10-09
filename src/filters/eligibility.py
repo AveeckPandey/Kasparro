@@ -102,8 +102,12 @@ class EligibilityFilter:
                             f"CGPA {resume.cgpa:.1f} below minimum threshold of {preferences.min_cgpa:.1f}"
                         )
                 else:
-                    # Candidate omitted CGPA
-                    pass  # By default, do not disqualify unstated CGPA unless strict
+                    # No stated CGPA: the threshold cannot be verified, so the
+                    # candidate is excluded (otherwise CGPA-less resumes silently
+                    # bypass the dial entirely).
+                    rejection_reasons.append(
+                        f"No stated CGPA (minimum threshold of {preferences.min_cgpa:.1f} required)"
+                    )
 
             # Related Experience Filter
             if preferences.require_experience and not resume.has_related_experience:
