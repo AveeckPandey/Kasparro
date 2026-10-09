@@ -144,9 +144,28 @@ class GitHubClient:
                         elif ev_type in ["IssuesEvent", "IssueCommentEvent"]:
                             issues_count += 1
 
-                total_contributions = recent_commits + prs_count + issues_count
+                total_events_activity = recent_commits + prs_count + issues_count
 
-                # 3. Fetch Repositories for relevance, stars, and original vs forked ratio
+                # 3. Fetch Annual Contributions Calendar (captures the full 1-year contributions shown on user's GitHub profile)
+                calendar_contributions = 0
+                try:
+                    cal_resp = client.get(
+                        f"https://github.com/users/{username}/contributions",
+                        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+                    )
+                    if cal_resp.status_code == 200:
+                        import re
+                        m_cal = re.search(r'([0-9,]+)\s+contributions?\s+in\s+the\s+last\s+year', cal_resp.text, re.IGNORECASE)
+                        if not m_cal:
+                            m_cal = re.search(r'([0-9,]+)\s+contributions?\s+in', cal_resp.text, re.IGNORECASE)
+                        if m_cal:
+                            calendar_contributions = int(m_cal.group(1).replace(",", ""))
+                except Exception as cal_err:
+                    logger.debug(f"Could not fetch contributions calendar for {username}: {cal_err}")
+
+                total_contributions = max(total_events_activity, calendar_contributions)
+
+                # 4. Fetch Repositories for relevance, stars, and original vs forked ratio
                 repos_resp = client.get(f"{base_url}/users/{username}/repos?sort=updated&per_page=30")
                 repos = repos_resp.json() if repos_resp.status_code == 200 else []
 
@@ -172,20 +191,23 @@ class GitHubClient:
                         if is_python or is_ai:
                             relevant_ai_python += 1
 
-                # 4. Cohort Classification
-                cohort = self._determine_cohort(age_years, public_repos, recent_commits + prs_count, days_since_active)
+                # 5. Cohort Classification
+                cohort = self._determine_cohort(age_years, public_repos, total_contributions, days_since_active)
 
-                # 5. Calculate Score (0-10)
+                # 6. Calculate Score (0-10)
                 # 0-5 for recency, commits, and PR contributions
                 activity_score = 0.0
                 if days_since_active <= 30:
                     activity_score = 5.0
                 elif days_since_active <= 90:
                     activity_score = 3.5
-                elif days_since_active <= 365:
-                    activity_score = 2.0
-                elif total_contributions > 0:
-                    activity_score = 1.0
+                elif days_since_active <= 365 or total_contributions > 0:
+                    activity_score = 2.5
+                
+                if total_contributions >= 50:
+                    activity_score = max(activity_score, 4.0)
+                elif total_contributions >= 10:
+                    activity_score = max(activity_score, 3.0)
 
                 # Extra booster for PR collaboration
                 if prs_count > 0:
@@ -212,7 +234,7 @@ class GitHubClient:
                 star_text = f", {total_stars} stars" if total_stars > 0 else ""
                 summary = (
                     f"{cohort} ({age_years} yrs on GitHub, {public_repos} repos [{original_repos} original], "
-                    f"{total_contributions} contributions [{recent_commits} commits{pr_text}]{star_text}). "
+                    f"{total_contributions} contributions in past year [{recent_commits} commits{pr_text}]{star_text}). "
                     f"{relevant_ai_python} relevant Python/AI repositories identified."
                 )
 
@@ -247,14 +269,14 @@ class GitHubClient:
             return metrics, 0.0, f"GitHub lookup skipped due to network/API error."
 
     def _determine_cohort(
-        self, age_years: float, repos: int, commits: int, days_since_active: int
+        self, age_years: float, repos: int, contributions: int, days_since_active: int
     ) -> str:
         """Classify candidate into an intuitive GitHub developer cohort."""
-        if repos == 0 and commits == 0:
+        if repos == 0 and contributions == 0:
             return "Dormant / Minimal"
-        if age_years >= 3.0 and repos >= 8 and (commits > 0 or days_since_active <= 120):
+        if age_years >= 3.0 and repos >= 8 and (contributions > 0 or days_since_active <= 120):
             return "Veteran Builder"
-        if age_years >= 1.0 and repos >= 4 and (commits > 0 or days_since_active <= 90):
+        if age_years >= 1.0 and repos >= 4 and (contributions > 0 or days_since_active <= 90):
             return "Active Builder"
         if age_years < 1.0 or repos < 4:
             return "Emerging Developer"

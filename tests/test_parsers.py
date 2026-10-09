@@ -16,6 +16,20 @@ def test_extract_email():
     assert extract_email(text) == "john.doe@example.com"
 
 
+def test_extract_phone():
+    # 5+5 format (Prathamesh Patil)
+    text1 = "+91 73490 41840 | Bengaluru, Karnataka\nprathameshpatil330@gmail.com"
+    assert extract_phone(text1) == "+91 73490 41840"
+
+    # Standard contiguous format (V Sree Raghu Vardhan)
+    text2 = "Hyderabad, India | +91 9121763249 | Linkedin"
+    assert extract_phone(text2) == "+91 9121763249"
+
+    # US format
+    text3 = "John Doe\n(555) 123-4567\njohn@example.com"
+    assert extract_phone(text3) == "(555) 123-4567"
+
+
 def test_extract_github_from_text():
     text = "GitHub: github.com/octocat | Portfolio: octocat.dev"
     url, username = extract_github(text)

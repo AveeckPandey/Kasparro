@@ -1,4 +1,4 @@
-"""LLM Provider Adapter interface and implementations (OpenAI, Gemini, Heuristic Fallback)."""
+"""LLM Provider Adapter interface and implementations (Groq, OpenAI, Gemini, Anthropic, Heuristic Fallback)."""
 
 import json
 import logging
@@ -98,6 +98,13 @@ class OpenAIAdapter(BaseLLMAdapter):
         )
 
 
+class GroqAdapter(OpenAIAdapter):
+    """Groq API adapter (OpenAI-compatible /chat/completions). Supports Qwen, Llama, etc."""
+
+    def __init__(self, api_key: str, model: str = "qwen/qwen3.8-27b", base_url: str = "https://api.groq.com/openai/v1"):
+        super().__init__(api_key=api_key, model=model, base_url=base_url)
+
+
 class GeminiAdapter(BaseLLMAdapter):
     """Google Gemini API adapter via HTTP."""
 
@@ -146,6 +153,68 @@ class GeminiAdapter(BaseLLMAdapter):
                         return text
         except Exception as e:
             logger.warning(f"Gemini API call failed, falling back to heuristic engine: {e}")
+
+        return HeuristicAdapter().generate_narrative_reason(
+            candidate_name, eligible, total_score, breakdown_dict, strengths,
+            concerns, rejection_reasons, matched_skills, github_summary
+        )
+
+
+class AnthropicAdapter(BaseLLMAdapter):
+    """Anthropic Messages API adapter (Claude models)."""
+
+    def __init__(self, api_key: str, model: str = "claude-3-5-haiku-latest", base_url: str = "https://api.anthropic.com/v1"):
+        self.api_key = api_key
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+
+    def generate_narrative_reason(
+        self,
+        candidate_name: str,
+        eligible: bool,
+        total_score: float,
+        breakdown_dict: Dict[str, float],
+        strengths: List[str],
+        concerns: List[str],
+        rejection_reasons: List[str],
+        matched_skills: List[str],
+        github_summary: str,
+    ) -> str:
+        prompt = (
+            f"Write a concise, professional 50 to 100 word evaluation summary for candidate '{candidate_name}'.\n"
+            f"Eligible: {eligible}\n"
+            f"Score: {total_score}/100\n"
+            f"Breakdown: {breakdown_dict}\n"
+            f"Rejection Reasons: {rejection_reasons}\n"
+            f"Strengths: {strengths}\n"
+            f"Concerns: {concerns}\n"
+            f"Skills: {matched_skills}\n"
+            f"GitHub: {github_summary}\n"
+            "Requirements: The output MUST be between 50 and 100 words. Explain specific evidence or why rejected."
+        )
+        try:
+            with httpx.Client(timeout=12.0) as client:
+                resp = client.post(
+                    f"{self.base_url}/messages",
+                    headers={
+                        "x-api-key": self.api_key,
+                        "anthropic-version": "2023-06-01",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": self.model,
+                        "max_tokens": 250,
+                        "messages": [{"role": "user", "content": prompt}],
+                    },
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    blocks = data.get("content", [])
+                    text = "".join(b.get("text", "") for b in blocks if b.get("type") == "text").strip()
+                    if text and 40 <= len(text.split()) <= 120:
+                        return text
+        except Exception as e:
+            logger.warning(f"Anthropic API call failed, falling back to heuristic engine: {e}")
 
         return HeuristicAdapter().generate_narrative_reason(
             candidate_name, eligible, total_score, breakdown_dict, strengths,
@@ -229,6 +298,15 @@ def get_llm_adapter() -> BaseLLMAdapter:
     """Factory to retrieve configured LLM adapter with automatic fallback."""
     provider = settings.LLM_PROVIDER.lower()
 
+    if provider == "groq":
+        if settings.GROQ_API_KEY:
+            return GroqAdapter(
+                api_key=settings.GROQ_API_KEY,
+                model=settings.GROQ_MODEL,
+                base_url=settings.GROQ_BASE_URL,
+            )
+        return HeuristicAdapter()
+
     if provider == "openai" or (provider == "auto" and settings.OPENAI_API_KEY):
         if settings.OPENAI_API_KEY:
             return OpenAIAdapter(
@@ -243,5 +321,20 @@ def get_llm_adapter() -> BaseLLMAdapter:
                 api_key=settings.GEMINI_API_KEY,
                 model=settings.GEMINI_MODEL,
             )
+
+    if provider == "anthropic" or (provider == "auto" and settings.ANTHROPIC_API_KEY):
+        if settings.ANTHROPIC_API_KEY:
+            return AnthropicAdapter(
+                api_key=settings.ANTHROPIC_API_KEY,
+                model=settings.ANTHROPIC_MODEL,
+                base_url=settings.ANTHROPIC_BASE_URL,
+            )
+
+    if provider == "auto" and settings.GROQ_API_KEY:
+        return GroqAdapter(
+            api_key=settings.GROQ_API_KEY,
+            model=settings.GROQ_MODEL,
+            base_url=settings.GROQ_BASE_URL,
+        )
 
     return HeuristicAdapter()

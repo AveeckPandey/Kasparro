@@ -31,22 +31,28 @@
           <i class="fa-solid fa-folder-open"></i>
           <span>Screen 50 Sample Resumes</span>
         </button>
-        <a href="/download_excel" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-file-excel text-emerald-400"></i>
-          <span>Excel (.xlsx)</span>
-        </a>
-        <a href="/download_docx" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-file-word text-blue-400"></i>
-          <span>Docx (.docx)</span>
-        </a>
-        <a href="/download_csv" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-file-csv"></i>
-          <span>CSV</span>
-        </a>
-        <button id="btnExportJson" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-code"></i>
-          <span>JSON</span>
-        </button>
+        <div class="flex items-center space-x-1 bg-slate-900/60 p-1 rounded-xl border border-slate-700/80">
+          <span class="text-[11px] font-semibold text-slate-400 px-2 flex items-center space-x-1">
+            <i class="fa-solid fa-download text-emerald-400"></i>
+            <span>Export (<span id="headerScopeTxt" class="text-amber-300 font-bold">All</span>):</span>
+          </span>
+          <button id="btnHeaderExcel" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 transition flex items-center space-x-1" title="Download Excel for current filter/selection">
+            <i class="fa-solid fa-file-excel text-emerald-400 text-[11px]"></i>
+            <span>Excel</span>
+          </button>
+          <button id="btnHeaderDocx" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 transition flex items-center space-x-1" title="Download Word Doc for current filter/selection">
+            <i class="fa-solid fa-file-word text-blue-400 text-[11px]"></i>
+            <span>Word</span>
+          </button>
+          <button id="btnHeaderCsv" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1" title="Download CSV for current filter/selection">
+            <i class="fa-solid fa-file-csv text-[11px]"></i>
+            <span>CSV</span>
+          </button>
+          <button id="btnExportJson" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1" title="Download JSON for current filter/selection">
+            <i class="fa-solid fa-code text-[11px]"></i>
+            <span>JSON</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -245,6 +251,26 @@
             <button id="btnFilterTop5" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">🏆 Top 5</button>
             <button id="btnFilterTop10" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">🌟 Top 10</button>
             <button id="btnFilterTop20" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Top 20</button>
+          </div>
+
+          <!-- Quick Export Filtered Shortlist (Top 5 / 10 / 20) -->
+          <div class="flex items-center space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-700/80">
+            <span class="text-[11px] font-semibold text-slate-400 px-2 flex items-center space-x-1">
+              <i class="fa-solid fa-cloud-arrow-down text-emerald-400 text-[10px]"></i>
+              <span>Download Shortlist:</span>
+            </span>
+            <button id="btnQuickExcel" class="px-2 py-1 text-xs font-semibold rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 transition flex items-center space-x-1" title="Download Excel for current view (Top 5/10/20)">
+              <i class="fa-solid fa-file-excel text-[11px]"></i>
+              <span>Excel</span>
+            </button>
+            <button id="btnQuickDocx" class="px-2 py-1 text-xs font-semibold rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 transition flex items-center space-x-1" title="Download Word document for current view">
+              <i class="fa-solid fa-file-word text-[11px]"></i>
+              <span>Docx</span>
+            </button>
+            <button id="btnQuickCsv" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center space-x-1" title="Download CSV for current view">
+              <i class="fa-solid fa-file-csv text-[11px]"></i>
+              <span>CSV</span>
+            </button>
           </div>
         </div>
 
@@ -539,6 +565,8 @@
         }
       }
 
+      updateExportBadges(filtered.length);
+
       if (filtered.length === 0) {
         candidatesList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-800/30 rounded-xl border border-slate-800">No candidates match the current filters or cutoff score (≥ ${currentCutoff} pts).</div>`;
         return;
@@ -737,12 +765,153 @@
 
     searchInput.addEventListener('input', renderCandidates);
 
-    // Export Downloads
-    btnExportJson.addEventListener('click', () => {
-      if (!currentReport) return alert('No screening results available yet.');
-      const blob = new Blob([JSON.stringify(currentReport, null, 2)], { type: 'application/json' });
-      downloadBlob(blob, 'results.json');
-    });
+    // Get current filtered candidates list matching active tab, search, dials, and topN limits
+    function getFilteredCandidatesList() {
+      if (!currentReport) return [];
+      let list = activeTab === 'eligible' ? [...currentReport.ranked_candidates] : [...currentReport.rejected_candidates];
+      const q = searchInput.value.toLowerCase().trim();
+
+      if (activeTab === 'eligible' && currentCutoff > 0) {
+        list = list.filter(c => c.total_score >= currentCutoff);
+      }
+
+      let filtered = list.filter(c => {
+        if (!q) return true;
+        const inName = c.candidate_name.toLowerCase().includes(q);
+        const inEmail = (c.email || '').toLowerCase().includes(q);
+        const inPhone = (c.phone || '').toLowerCase().includes(q);
+        const inSkills = (c.matched_skills || []).some(s => s.toLowerCase().includes(q));
+        const inReasons = (c.rejection_reasons || []).some(r => r.toLowerCase().includes(q));
+        return inName || inEmail || inPhone || inSkills || inReasons;
+      });
+
+      if (activeTab === 'eligible' && topNLimit !== 'all') {
+        filtered = filtered.slice(0, topNLimit);
+      }
+      return filtered;
+    }
+
+    function getFilterScopeName() {
+      if (topNLimit !== 'all') return `Top_${topNLimit}`;
+      if (searchInput.value.trim()) return `Search_Results`;
+      if (currentCutoff > 0) return `Score_Min_${currentCutoff}`;
+      return activeTab === 'eligible' ? 'Eligible_All' : 'Disqualified_All';
+    }
+
+    function updateExportBadges(count) {
+      let label = 'All';
+      if (topNLimit !== 'all') {
+        label = `Top ${topNLimit}`;
+      } else if (currentCutoff > 0) {
+        label = `≥${currentCutoff}pts`;
+      } else if (searchInput.value.trim()) {
+        label = 'Search';
+      }
+      const headerScope = document.getElementById('headerScopeTxt');
+      if (headerScope) headerScope.textContent = `${label} (${count})`;
+    }
+
+    async function exportFilteredExcel() {
+      const cands = getFilteredCandidatesList();
+      if (!cands || cands.length === 0) return alert('No candidates in the current filter view to export.');
+      showLoading(`Generating Excel for ${cands.length} candidate(s) (${getFilterScopeName()})...`);
+      try {
+        const resp = await fetch('/export_filtered_excel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidates: cands, filter_label: getFilterScopeName() })
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        const blob = await resp.blob();
+        downloadBlob(blob, `shortlist_${getFilterScopeName().toLowerCase()}.xlsx`);
+      } catch (err) {
+        alert('Excel export failed: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function exportFilteredDocx() {
+      const cands = getFilteredCandidatesList();
+      if (!cands || cands.length === 0) return alert('No candidates in the current filter view to export.');
+      showLoading(`Generating Word document for ${cands.length} candidate(s) (${getFilterScopeName()})...`);
+      try {
+        const resp = await fetch('/export_filtered_docx', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidates: cands, filter_label: getFilterScopeName() })
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        const blob = await resp.blob();
+        downloadBlob(blob, `shortlist_${getFilterScopeName().toLowerCase()}.docx`);
+      } catch (err) {
+        alert('Word document export failed: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function exportFilteredCsv() {
+      const cands = getFilteredCandidatesList();
+      if (!cands || cands.length === 0) return alert('No candidates in the current filter view to export.');
+      const headers = [
+        'Rank', 'Candidate Name', 'Email', 'Phone', 'Resume File', 'Status',
+        'Total Score', 'AI Depth (40)', 'Python (30)', 'Cloud (15)', 'GitHub (10)', 'Eng (5)',
+        'CGPA', 'Experience', 'GitHub Cohort', 'GitHub Years', 'Public Repos', 'Original Repos',
+        'Total Contributions', 'Recent Commits', 'PRs', 'Stars', 'Matched Skills', 'Evaluation Justification'
+      ];
+      const rows = cands.map(c => [
+        c.rank !== null ? c.rank : 'Disqualified',
+        `"${(c.candidate_name || '').replace(/"/g, '""')}"`,
+        `"${(c.email || 'N/A').replace(/"/g, '""')}"`,
+        `"${(c.phone || 'N/A').replace(/"/g, '""')}"`,
+        `"${(c.file_name || '').replace(/"/g, '""')}"`,
+        c.eligible ? 'Eligible' : 'Disqualified',
+        c.total_score,
+        c.score_breakdown ? c.score_breakdown.ai_project_depth : 0,
+        c.score_breakdown ? c.score_breakdown.python_backend : 0,
+        c.score_breakdown ? c.score_breakdown.cloud_fullstack : 0,
+        c.score_breakdown ? c.score_breakdown.github : 0,
+        c.score_breakdown ? c.score_breakdown.engineering_depth : 0,
+        c.cgpa !== null ? c.cgpa : 'N/A',
+        c.has_related_experience ? 'Yes' : 'No',
+        c.github_metrics ? `"${c.github_metrics.cohort}"` : 'N/A',
+        c.github_metrics ? c.github_metrics.account_age_years : 0,
+        c.github_metrics ? c.github_metrics.public_repos : 0,
+        c.github_metrics ? c.github_metrics.original_repos_count : 0,
+        c.github_metrics ? (c.github_metrics.total_contributions || 0) : 0,
+        c.github_metrics ? (c.github_metrics.recent_commits || 0) : 0,
+        c.github_metrics ? (c.github_metrics.prs_count || 0) : 0,
+        c.github_metrics ? (c.github_metrics.total_stars || 0) : 0,
+        `"${(c.matched_skills || []).join('; ').replace(/"/g, '""')}"`,
+        `"${(c.reason_50_to_100_words || '').replace(/"/g, '""')}"`
+      ]);
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      downloadBlob(blob, `shortlist_${getFilterScopeName().toLowerCase()}.csv`);
+    }
+
+    function exportFilteredJson() {
+      const cands = getFilteredCandidatesList();
+      if (!cands || cands.length === 0) return alert('No candidates in the current filter view to export.');
+      const data = {
+        filter_scope: getFilterScopeName(),
+        candidate_count: cands.length,
+        candidates: cands
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      downloadBlob(blob, `shortlist_${getFilterScopeName().toLowerCase()}.json`);
+    }
+
+    // Attach Export Event Listeners (Header and Quick toolbar)
+    document.getElementById('btnHeaderExcel').addEventListener('click', exportFilteredExcel);
+    document.getElementById('btnHeaderDocx').addEventListener('click', exportFilteredDocx);
+    document.getElementById('btnHeaderCsv').addEventListener('click', exportFilteredCsv);
+    document.getElementById('btnExportJson').addEventListener('click', exportFilteredJson);
+
+    document.getElementById('btnQuickExcel').addEventListener('click', exportFilteredExcel);
+    document.getElementById('btnQuickDocx').addEventListener('click', exportFilteredDocx);
+    document.getElementById('btnQuickCsv').addEventListener('click', exportFilteredCsv);
 
     function downloadBlob(blob, filename) {
       const url = URL.createObjectURL(blob);

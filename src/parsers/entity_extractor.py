@@ -5,7 +5,15 @@ from typing import Optional, Tuple, List, Dict
 
 
 EMAIL_REGEX = re.compile(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+', re.IGNORECASE)
-PHONE_REGEX = re.compile(r'(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{3,4}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}')
+PHONE_PATTERNS = [
+    # International with 5+5 or 4+6 format, e.g. "+91 73490 41840", "+91-73490-41840"
+    re.compile(r'(?:\+\d{1,3}[-.\s]?)?\(?\d{2,5}\)?[-.\s]?\d{3,5}[-.\s]?\d{3,5}'),
+    # Standard 10-digit contiguous or with country code, e.g. "+919121763249", "9121763249"
+    re.compile(r'(?:\+\d{1,3}[-.\s]?)?\d{10}'),
+    # US / International standard 3+3+4, e.g. "+1 (555) 123-4567", "555-123-4567"
+    re.compile(r'(?:\+\d{1,3}[-.\s]?)?(?:\(?\d{3,4}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}'),
+]
+PHONE_REGEX = PHONE_PATTERNS[0]
 GITHUB_REGEX = re.compile(r'github\.com/([a-zA-Z0-9_\-]+)(?:/)?', re.IGNORECASE)
 LINKEDIN_REGEX = re.compile(r'linkedin\.com/in/([a-zA-Z0-9_\-]+)(?:/)?', re.IGNORECASE)
 
@@ -51,13 +59,15 @@ def extract_email(text: str) -> Optional[str]:
 
 
 def extract_phone(text: str) -> Optional[str]:
-    """Extract phone number candidate."""
-    for line in text.split("\n")[:10]:
-        match = PHONE_REGEX.search(line)
-        if match:
-            digits = re.sub(r'\D', '', match.group(0))
-            if 10 <= len(digits) <= 13:
-                return match.group(0).strip()
+    """Extract candidate phone number from header lines."""
+    for line in text.split("\n")[:15]:
+        for pat in PHONE_PATTERNS:
+            match = pat.search(line)
+            if match:
+                raw = match.group(0).strip()
+                digits = re.sub(r'\D', '', raw)
+                if 10 <= len(digits) <= 13:
+                    return raw
     return None
 
 

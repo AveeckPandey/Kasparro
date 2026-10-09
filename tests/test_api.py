@@ -57,3 +57,23 @@ def test_api_serve_resume():
 def test_api_serve_resume_not_found():
     resp = client.get("/resumes/non_existent_file.pdf")
     assert resp.status_code == 404
+
+
+def test_api_export_filtered_excel():
+    # Fetch results first to get sample candidates
+    results = client.get("/results").json()
+    top5 = results["ranked_candidates"][:5]
+    resp = client.post("/export_filtered_excel", json={"candidates": top5, "filter_label": "Top 5"})
+    assert resp.status_code == 200
+    assert "application/vnd.openxmlformats" in resp.headers["content-type"]
+    assert "shortlist_top_5.xlsx" in resp.headers["content-disposition"]
+
+
+def test_api_export_filtered_docx():
+    results = client.get("/results").json()
+    top5 = results["ranked_candidates"][:5]
+    resp = client.post("/export_filtered_docx", json={"candidates": top5, "filter_label": "Top 5"})
+    assert resp.status_code == 200
+    assert "application/vnd.openxmlformats" in resp.headers["content-type"]
+    assert "shortlist_top_5.docx" in resp.headers["content-disposition"]
+

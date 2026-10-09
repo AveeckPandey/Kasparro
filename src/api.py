@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.config import settings
-from src.models import ScreeningReport, FilterPreferences
+from src.models import ScreeningReport, FilterPreferences, CandidateResult
 from src.pipeline import ScreeningPipeline
 
 app = FastAPI(
@@ -251,3 +251,43 @@ def download_docx():
         filename="screening_report.docx",
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
+
+
+class FilterExportRequest(BaseModel):
+    candidates: List[CandidateResult]
+    filter_label: str = "Filtered_Shortlist"
+
+
+@app.post("/export_filtered_excel")
+def export_filtered_excel(req: FilterExportRequest):
+    """Generate and download a tailored Excel file containing only the filtered candidates."""
+    import re
+    temp_file = Path(tempfile.mktemp(suffix=".xlsx"))
+    try:
+        pipeline.export_excel(req.candidates, temp_file)
+        safe_label = re.sub(r'[^\w\-]', '_', req.filter_label.lower().strip()) or "filtered"
+        return FileResponse(
+            path=str(temp_file),
+            filename=f"shortlist_{safe_label}.xlsx",
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/export_filtered_docx")
+def export_filtered_docx(req: FilterExportRequest):
+    """Generate and download a tailored Word document containing only the filtered candidates."""
+    import re
+    temp_file = Path(tempfile.mktemp(suffix=".docx"))
+    try:
+        pipeline.export_docx(req.candidates, temp_file)
+        safe_label = re.sub(r'[^\w\-]', '_', req.filter_label.lower().strip()) or "filtered"
+        return FileResponse(
+            path=str(temp_file),
+            filename=f"shortlist_{safe_label}.docx",
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

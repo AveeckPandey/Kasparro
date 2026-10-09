@@ -351,7 +351,10 @@ class ScreeningPipeline:
             cell.fill = header_fill
             cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
-        all_candidates = report.ranked_candidates + report.rejected_candidates
+        if isinstance(report, list):
+            all_candidates = report
+        else:
+            all_candidates = report.ranked_candidates + report.rejected_candidates
         for row_idx, c in enumerate(all_candidates, start=2):
             row_data = [
                 c.rank if c.rank is not None else "Disqualified",
@@ -403,7 +406,7 @@ class ScreeningPipeline:
         wb.save(path)
 
     @staticmethod
-    def export_docx(report: ScreeningReport, output_path: str | Path) -> None:
+    def export_docx(report: ScreeningReport | List[CandidateResult], output_path: str | Path) -> None:
         """Export screening results to a formal Word document (.docx) using python-docx."""
         import docx
         from docx.shared import Inches, Pt, RGBColor
@@ -421,14 +424,26 @@ class ScreeningPipeline:
         subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         # Summary Section
-        doc.add_heading("1. Batch Summary", level=1)
-        bs = report.batch_summary
+        doc.add_heading("1. Summary of Evaluated Candidates", level=1)
+        if isinstance(report, list):
+            ranked_candidates = [c for c in report if c.eligible] or report
+            bs_total = len(report)
+            bs_eligible = len([c for c in report if c.eligible])
+            bs_rejected = len([c for c in report if not c.eligible])
+            avg_score = round(sum(c.total_score for c in ranked_candidates) / len(ranked_candidates), 1) if ranked_candidates else 0.0
+        else:
+            ranked_candidates = report.ranked_candidates
+            bs = report.batch_summary
+            bs_total = bs.total_resumes
+            bs_eligible = bs.eligible
+            bs_rejected = bs.rejected
+            avg_score = bs.average_score_eligible
+
         p_summary = doc.add_paragraph()
-        p_summary.add_run(f"• Total Resumes Ingested: {bs.total_resumes}\n")
-        p_summary.add_run(f"• Successfully Parsed: {bs.successfully_parsed}\n")
-        p_summary.add_run(f"• Eligible Candidates: {bs.eligible}\n")
-        p_summary.add_run(f"• Disqualified Candidates: {bs.rejected}\n")
-        p_summary.add_run(f"• Average Score (Eligible): {bs.average_score_eligible} / 100\n")
+        p_summary.add_run(f"• Total Candidates Selected: {bs_total}\n")
+        p_summary.add_run(f"• Eligible Candidates: {bs_eligible}\n")
+        p_summary.add_run(f"• Disqualified Candidates: {bs_rejected}\n")
+        p_summary.add_run(f"• Average Score (Eligible): {avg_score} / 100\n")
 
         # Top Shortlisted Candidates Table
         doc.add_heading("2. Shortlisted Candidates", level=1)
@@ -442,9 +457,9 @@ class ScreeningPipeline:
         hdr_cells[4].text = "Score"
         hdr_cells[5].text = "GitHub Cohort"
 
-        for c in report.ranked_candidates:
+        for c in ranked_candidates:
             row_cells = table.add_row().cells
-            row_cells[0].text = f"#{c.rank}"
+            row_cells[0].text = f"#{c.rank}" if c.rank is not None else "Disq."
             row_cells[1].text = c.candidate_name
             row_cells[2].text = c.email or "N/A"
             row_cells[3].text = c.phone or "N/A"
@@ -453,8 +468,8 @@ class ScreeningPipeline:
 
         # Detailed Profiles Section
         doc.add_heading("3. Detailed Candidate Evaluations", level=1)
-        for c in report.ranked_candidates[:15]:
-            doc.add_heading(f"#{c.rank} - {c.candidate_name} ({c.total_score:.1f}/100)", level=2)
+        for c in ranked_candidates[:20]:
+            doc.add_heading(f"#{c.rank or 'Disq.'} - {c.candidate_name} ({c.total_score:.1f}/100)", level=2)
             p = doc.add_paragraph()
             p.add_run(f"Contact: {c.email or 'N/A'} | {c.phone or 'N/A'} | Resume: {c.file_name}\n").bold = True
             p.add_run(f"Score Breakdown: AI Depth: {c.score_breakdown.ai_project_depth} | Python: {c.score_breakdown.python_backend} | Cloud: {c.score_breakdown.cloud_fullstack} | GitHub: {c.score_breakdown.github} | Eng: {c.score_breakdown.engineering_depth}\n")

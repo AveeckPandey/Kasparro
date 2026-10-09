@@ -20,13 +20,21 @@ class Settings(BaseSettings):
     GITHUB_CACHE_FILE: Path = Field(default=Path("./output/.github_cache.json"))
 
     # LLM Settings
-    LLM_PROVIDER: str = Field(default="auto", description="auto, openai, gemini, or heuristic")
+    LLM_PROVIDER: str = Field(default="auto", description="auto, groq, openai, gemini, anthropic, or heuristic")
     OPENAI_API_KEY: Optional[str] = Field(default=None)
     OPENAI_MODEL: str = Field(default="gpt-4o-mini")
     OPENAI_BASE_URL: str = Field(default="https://api.openai.com/v1")
 
     GEMINI_API_KEY: Optional[str] = Field(default=None)
     GEMINI_MODEL: str = Field(default="gemini-1.5-flash")
+
+    GROQ_API_KEY: Optional[str] = Field(default=None, description="Groq API key (OpenAI-compatible)")
+    GROQ_MODEL: str = Field(default="qwen/qwen3.8-27b", description="Groq model ID, e.g. qwen/qwen3.8-27b")
+    GROQ_BASE_URL: str = Field(default="https://api.groq.com/openai/v1")
+
+    ANTHROPIC_API_KEY: Optional[str] = Field(default=None)
+    ANTHROPIC_MODEL: str = Field(default="claude-3-5-haiku-latest")
+    ANTHROPIC_BASE_URL: str = Field(default="https://api.anthropic.com/v1")
 
     # Concurrency & Performance
     CONCURRENCY_LIMIT: int = Field(default=5, description="Max concurrent worker tasks")
