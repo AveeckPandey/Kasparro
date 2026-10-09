@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasparro - AI Candidate Screening & Ranking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .dial-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.25); }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Kasparro Screening System</h1>
+          <p class="text-xs text-slate-400">SDE Internship • Python Fundamentals & Agentic AI Exposure</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button id="btnPreloadSample" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-folder-open"></i>
+          <span>Screen 50 Sample Resumes</span>
+        </button>
+        <button id="btnExportJson" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-download"></i>
+          <span>JSON</span>
+        </button>
+        <button id="btnExportCsv" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-file-csv"></i>
+          <span>CSV</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Upload & Interactive Controls Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Folder Upload Box -->
+      <div class="lg:col-span-1 bg-slate-800/60 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+              <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i>
+              <span>Ingest Resumes</span>
+            </h2>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Up to 100 Files</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">Upload a resume folder (PDF, DOCX, TXT) or individual files for batch screening.</p>
+          
+          <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-900/40 hover:bg-slate-900/80">
+            <i class="fa-solid fa-folder-plus text-3xl text-slate-500 mb-2"></i>
+            <p class="text-sm font-medium text-slate-300">Click to select folder or files</p>
+            <p class="text-xs text-slate-500 mt-1">PDF, DOCX, TXT supported</p>
+            <input type="file" id="fileInput" webkitdirectory directory multiple class="hidden">
+            <input type="file" id="multiFileInput" multiple class="hidden">
+          </div>
+          <div class="flex justify-center space-x-4 mt-2">
+            <button id="btnSelectFolder" class="text-xs text-blue-400 hover:underline">Select Folder</button>
+            <span class="text-slate-600">•</span>
+            <button id="btnSelectFiles" class="text-xs text-blue-400 hover:underline">Select Files</button>
+          </div>
+          <div id="fileUploadStatus" class="mt-3 text-xs text-slate-400 hidden"></div>
+        </div>
+
+        <button id="btnSubmitScreening" class="w-full mt-4 py-2.5 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-play"></i>
+          <span>Run Screening & Ranking</span>
+        </button>
+      </div>
+
+      <!-- Interactive Filters & Dials -->
+      <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700 rounded-2xl p-6 space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+          <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+            <i class="fa-solid fa-sliders text-indigo-400"></i>
+            <span>Interactive Filter Dials & Requirements</span>
+          </h2>
+          <span class="text-xs text-slate-400">Real-time candidate thresholding</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- CGPA Dial / Slider -->
+          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-3 dial-glow">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-graduation-cap text-yellow-400"></i>
+                <span>Minimum CGPA Dial</span>
+              </label>
+              <span id="cgpaValueDisplay" class="text-sm font-bold px-2.5 py-0.5 rounded-lg bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Any CGPA</span>
+            </div>
+            <input type="range" id="cgpaSlider" min="0" max="10" step="0.5" value="0" class="w-full accent-yellow-400 cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-500">
+              <span>Any (0.0)</span>
+              <span>6.0</span>
+              <span>7.0</span>
+              <span>8.0</span>
+              <span>9.0</span>
+              <span>10.0</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Normalizes 10-point, 4.0 GPA, and percentages. Candidates without stated CGPA are flagged.</p>
+          </div>
+
+          <!-- GitHub Profile Filter -->
+          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                <i class="fa-brands fa-github text-slate-300"></i>
+                <span>GitHub Profile Presence</span>
+              </label>
+              <input type="checkbox" id="chkRequireGithub" class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-0">
+            </div>
+            <p class="text-[11px] text-slate-400">Requires a public GitHub profile link. Extracts account age in years, public repositories, and commit history.</p>
+            <div class="flex items-center space-x-2 text-[10px] text-indigo-300 bg-indigo-950/40 px-2 py-1 rounded border border-indigo-900">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Rate-limit safe: includes fallback and local caching.</span>
+            </div>
+          </div>
+
+          <!-- AI Background Requirement -->
+          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-robot text-emerald-400"></i>
+                <span>Mandatory AI / Agentic Project</span>
+              </label>
+              <input type="checkbox" id="chkRequireAi" checked class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-0">
+            </div>
+            <p class="text-[11px] text-slate-400">Verifies genuine exposure to LangChain, LangGraph, ADK, RAG, tool-calling agents, or vector search.</p>
+          </div>
+
+          <!-- Related Experience Filter -->
+          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-briefcase text-blue-400"></i>
+                <span>Require Related Work/Internship</span>
+              </label>
+              <input type="checkbox" id="chkRequireExp" class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-0">
+            </div>
+            <p class="text-[11px] text-slate-400">Filters for candidates with verified software engineering, AI/ML, or backend internship experience.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Batch Summary Cards -->
+    <div id="batchSummarySection" class="hidden space-y-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-slate-400">Total Ingested</p>
+          <p id="sumTotal" class="text-2xl font-bold text-slate-100 mt-1">0</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-slate-400">Successfully Parsed</p>
+          <p id="sumParsed" class="text-2xl font-bold text-blue-400 mt-1">0</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-slate-400">Eligible Candidates</p>
+          <p id="sumEligible" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-slate-400">Disqualified</p>
+          <p id="sumRejected" class="text-2xl font-bold text-red-400 mt-1">0</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center col-span-2 md:col-span-1">
+          <p class="text-xs font-medium text-slate-400">Avg Eligible Score</p>
+          <p id="sumAvgScore" class="text-2xl font-bold text-amber-400 mt-1">0 / 100</p>
+        </div>
+      </div>
+
+      <!-- GitHub Cohorts Distribution -->
+      <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <span class="text-xs font-semibold text-slate-300 flex items-center space-x-2">
+          <i class="fa-brands fa-github text-slate-400"></i>
+          <span>GitHub Developer Cohorts:</span>
+        </span>
+        <div id="cohortsContainer" class="flex flex-wrap gap-2 text-xs">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Candidate Tabs & Search -->
+    <div id="resultsSection" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center space-x-2">
+          <button id="tabEligible" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md shadow-blue-600/30">
+            Ranked Eligible (<span id="countEligibleTab">0</span>)
+          </button>
+          <button id="tabRejected" class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">
+            Disqualified (<span id="countRejectedTab">0</span>)
+          </button>
+        </div>
+
+        <div class="relative w-full sm:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
+          <input type="text" id="searchInput" placeholder="Search candidate or skill..." class="w-full bg-slate-800/80 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+        </div>
+      </div>
+
+      <!-- Candidate Cards Container -->
+      <div id="candidatesList" class="space-y-4">
+        <!-- Candidate Cards will be rendered here -->
+      </div>
+    </div>
+
+    <!-- Loading Spinner Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col space-y-4">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p id="loadingStatusText" class="text-sm font-semibold text-slate-200">Processing candidate resumes...</p>
+    </div>
+
+  </main>
+
+  <script>
+    let currentReport = null;
+    let activeTab = 'eligible'; // 'eligible' or 'rejected'
+    let selectedFiles = [];
+
+    // Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const multiFileInput = document.getElementById('multiFileInput');
+    const btnSelectFolder = document.getElementById('btnSelectFolder');
+    const btnSelectFiles = document.getElementById('btnSelectFiles');
+    const fileUploadStatus = document.getElementById('fileUploadStatus');
+    const btnSubmitScreening = document.getElementById('btnSubmitScreening');
+    const btnPreloadSample = document.getElementById('btnPreloadSample');
+    const btnExportJson = document.getElementById('btnExportJson');
+    const btnExportCsv = document.getElementById('btnExportCsv');
+
+    const cgpaSlider = document.getElementById('cgpaSlider');
+    const cgpaValueDisplay = document.getElementById('cgpaValueDisplay');
+    const chkRequireGithub = document.getElementById('chkRequireGithub');
+    const chkRequireAi = document.getElementById('chkRequireAi');
+    const chkRequireExp = document.getElementById('chkRequireExp');
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingStatusText = document.getElementById('loadingStatusText');
+    const batchSummarySection = document.getElementById('batchSummarySection');
+    const resultsSection = document.getElementById('resultsSection');
+    const candidatesList = document.getElementById('candidatesList');
+
+    const tabEligible = document.getElementById('tabEligible');
+    const tabRejected = document.getElementById('tabRejected');
+    const countEligibleTab = document.getElementById('countEligibleTab');
+    const countRejectedTab = document.getElementById('countRejectedTab');
+    const searchInput = document.getElementById('searchInput');
+
+    // CGPA Slider Event
+    cgpaSlider.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      cgpaValueDisplay.textContent = val === 0 ? 'Any CGPA' : `≥ ${val.toFixed(1)} / 10`;
+    });
+
+    // File selection handlers
+    btnSelectFolder.addEventListener('click', () => fileInput.click());
+    btnSelectFiles.addEventListener('click', () => multiFileInput.click());
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', handleFileSelect);
+    multiFileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(e) {
+      selectedFiles = Array.from(e.target.files).filter(f => /\.(pdf|docx|txt|doc|md)$/i.test(f.name));
+      if (selectedFiles.length > 100) {
+        alert('Notice: Batch capped at 100 resumes. First 100 selected.');
+        selectedFiles = selectedFiles.slice(0, 100);
+      }
+      fileUploadStatus.classList.remove('hidden');
+      fileUploadStatus.textContent = `✓ Selected ${selectedFiles.length} resume(s)`;
+    }
+
+    // Run Screening (with Upload or Preload)
+    btnSubmitScreening.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) {
+        // Preload sample resumes if no files uploaded
+        await runScreeningSample();
+      } else {
+        await uploadAndScreenFiles();
+      }
+    });
+
+    btnPreloadSample.addEventListener('click', runScreeningSample);
+
+    async function runScreeningSample() {
+      showLoading('Screening 50 sample resumes from resumes/ directory...');
+      try {
+        const minCgpa = parseFloat(cgpaSlider.value) > 0 ? parseFloat(cgpaSlider.value) : null;
+        const resp = await fetch('/screen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            input_dir: './resumes',
+            min_cgpa: minCgpa,
+            require_ai: chkRequireAi.checked,
+            require_experience: chkRequireExp.checked,
+            require_github_link: chkRequireGithub.checked
+          })
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        currentReport = await resp.json();
+        renderReport(currentReport);
+      } catch (err) {
+        alert('Error screening resumes: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function uploadAndScreenFiles() {
+      showLoading(`Uploading and parsing ${selectedFiles.length} resumes...`);
+      try {
+        const formData = new FormData();
+        selectedFiles.forEach(f => formData.append('files', f));
+        
+        const minCgpa = parseFloat(cgpaSlider.value) > 0 ? parseFloat(cgpaSlider.value) : null;
+        if (minCgpa !== null) formData.append('min_cgpa', minCgpa);
+        formData.append('require_ai', chkRequireAi.checked);
+        formData.append('require_experience', chkRequireExp.checked);
+        formData.append('require_github_link', chkRequireGithub.checked);
+
+        const resp = await fetch('/upload_and_screen', {
+          method: 'POST',
+          body: formData
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        currentReport = await resp.json();
+        renderReport(currentReport);
+      } catch (err) {
+        alert('Upload failed: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Render Screening Report
+    function renderReport(report) {
+      batchSummarySection.classList.remove('hidden');
+      resultsSection.classList.remove('hidden');
+
+      // Summary counters
+      const bs = report.batch_summary;
+      document.getElementById('sumTotal').textContent = bs.total_resumes;
+      document.getElementById('sumParsed').textContent = bs.successfully_parsed;
+      document.getElementById('sumEligible').textContent = bs.eligible;
+      document.getElementById('sumRejected').textContent = bs.rejected;
+      document.getElementById('sumAvgScore').textContent = `${bs.average_score_eligible} / 100`;
+
+      countEligibleTab.textContent = report.ranked_candidates.length;
+      countRejectedTab.textContent = report.rejected_candidates.length;
+
+      // Cohorts
+      const cohortsContainer = document.getElementById('cohortsContainer');
+      cohortsContainer.innerHTML = '';
+      for (const [cohort, count] of Object.entries(bs.github_cohorts || {})) {
+        const badge = document.createElement('span');
+        badge.className = 'px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700';
+        badge.innerHTML = `<span class="font-semibold text-blue-400">${count}</span> ${cohort}`;
+        cohortsContainer.appendChild(badge);
+      }
+
+      renderCandidates();
+    }
+
+    function renderCandidates() {
+      candidatesList.innerHTML = '';
+      const list = activeTab === 'eligible' ? currentReport.ranked_candidates : currentReport.rejected_candidates;
+      const q = searchInput.value.toLowerCase().trim();
+
+      const filtered = list.filter(c => {
+        if (!q) return true;
+        const inName = c.candidate_name.toLowerCase().includes(q);
+        const inSkills = (c.matched_skills || []).some(s => s.toLowerCase().includes(q));
+        const inReasons = (c.rejection_reasons || []).some(r => r.toLowerCase().includes(q));
+        return inName || inSkills || inReasons;
+      });
+
+      if (filtered.length === 0) {
+        candidatesList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-800/30 rounded-xl border border-slate-800">No candidates match the current filters.</div>`;
+        return;
+      }
+
+      filtered.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-800/60 border border-slate-700/80 hover:border-slate-600 rounded-xl p-5 space-y-4 transition shadow-sm';
+
+        if (c.eligible) {
+          card.innerHTML = `
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+              <div class="flex items-center space-x-3">
+                <span class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 font-bold flex items-center justify-center text-sm">
+                  #${c.rank}
+                </span>
+                <div>
+                  <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                    <span>${c.candidate_name}</span>
+                    ${c.github_metrics && c.github_metrics.username ? `
+                      <a href="https://github.com/${c.github_metrics.username}" target="_blank" class="text-xs text-slate-400 hover:text-white">
+                        <i class="fa-brands fa-github"></i>
+                      </a>
+                    ` : ''}
+                  </h3>
+                  <p class="text-xs text-slate-400">${c.file_name} • ${c.cgpa ? `CGPA: <span class="text-yellow-400 font-semibold">${c.cgpa}</span>/10` : 'CGPA: Not Listed'}</p>
+                </div>
+              </div>
+
+              <!-- Score Badge -->
+              <div class="flex items-center space-x-4">
+                <div class="text-right">
+                  <span class="text-xs text-slate-400 block">Total Score</span>
+                  <span class="text-xl font-extrabold text-emerald-400">${c.total_score.toFixed(1)}<span class="text-xs text-slate-500"> / 100</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Breakdown Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs bg-slate-900/50 p-3 rounded-lg border border-slate-800">
+              <div>
+                <span class="text-slate-400 block text-[10px]">AI Project Depth (40)</span>
+                <span class="font-bold text-blue-400">${c.score_breakdown.ai_project_depth} pts</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">Python & Backend (30)</span>
+                <span class="font-bold text-indigo-400">${c.score_breakdown.python_backend} pts</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">Cloud & Fullstack (15)</span>
+                <span class="font-bold text-cyan-400">${c.score_breakdown.cloud_fullstack} pts</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">GitHub Activity (10)</span>
+                <span class="font-bold text-purple-400">${c.score_breakdown.github} pts</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">Engineering Depth (5)</span>
+                <span class="font-bold text-emerald-400">${c.score_breakdown.engineering_depth} pts</span>
+              </div>
+            </div>
+
+            <!-- GitHub Metrics & Cohort -->
+            ${c.github_metrics ? `
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">
+                  <i class="fa-brands fa-github mr-1"></i>${c.github_metrics.cohort}
+                </span>
+                <span class="text-slate-400">•</span>
+                <span>${c.github_metrics.account_age_years} yrs on GitHub</span>
+                <span class="text-slate-400">•</span>
+                <span>${c.github_metrics.public_repos} repos</span>
+                <span class="text-slate-400">•</span>
+                <span>${c.github_metrics.recent_commits} commits</span>
+              </div>
+            ` : ''}
+
+            <!-- 50-100 Word Evaluation Justification -->
+            <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-3 text-xs leading-relaxed text-slate-300">
+              <span class="text-[11px] font-bold text-blue-400 uppercase tracking-wider block mb-1">
+                <i class="fa-solid fa-file-lines mr-1"></i>50–100 Word Evaluation Justification:
+              </span>
+              <p>${c.reason_50_to_100_words}</p>
+            </div>
+
+            <!-- Skills & Strengths Badges -->
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              ${c.matched_skills.map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-slate-700/50 text-slate-300 border border-slate-600/40">${s}</span>`).join('')}
+            </div>
+          `;
+        } else {
+          // Ineligible Candidate Card
+          card.innerHTML = `
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-200">${c.candidate_name}</h3>
+                <p class="text-xs text-slate-400">${c.file_name} • ${c.cgpa ? `CGPA: ${c.cgpa}/10` : 'CGPA: Not Listed'}</p>
+              </div>
+              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                Disqualified
+              </span>
+            </div>
+
+            <!-- Rejection Reasons -->
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-bold text-red-400 uppercase tracking-wider block">Explicit Disqualification Reasons:</span>
+              <div class="flex flex-wrap gap-2">
+                ${c.rejection_reasons.map(r => `
+                  <span class="px-2.5 py-1 text-xs rounded-lg bg-red-950/40 text-red-300 border border-red-800/60 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-circle-xmark text-red-400"></i>
+                    <span>${r}</span>
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- 50-100 Word Rejection Reason -->
+            <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-3 text-xs leading-relaxed text-slate-400">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Evaluation Notes:
+              </span>
+              <p>${c.reason_50_to_100_words}</p>
+            </div>
+
+            <!-- Matched Skills -->
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              ${c.matched_skills.map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-slate-800 text-slate-400 border border-slate-700">${s}</span>`).join('')}
+            </div>
+          `;
+        }
+
+        candidatesList.appendChild(card);
+      });
+    }
+
+    // Tabs
+    tabEligible.addEventListener('click', () => {
+      activeTab = 'eligible';
+      tabEligible.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md shadow-blue-600/30';
+      tabRejected.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+      renderCandidates();
+    });
+
+    tabRejected.addEventListener('click', () => {
+      activeTab = 'rejected';
+      tabRejected.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white shadow-md shadow-red-600/30';
+      tabEligible.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+      renderCandidates();
+    });
+
+    searchInput.addEventListener('input', renderCandidates);
+
+    // Export Downloads
+    btnExportJson.addEventListener('click', () => {
+      if (!currentReport) return alert('No screening results available yet.');
+      const blob = new Blob([JSON.stringify(currentReport, null, 2)], { type: 'application/json' });
+      downloadBlob(blob, 'results.json');
+    });
+
+    btnExportCsv.addEventListener('click', () => {
+      if (!currentReport) return alert('No screening results available yet.');
+      window.location.href = '/download_csv';
+    });
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function showLoading(msg) {
+      loadingStatusText.textContent = msg;
+      loadingOverlay.classList.remove('hidden');
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.add('hidden');
+    }
+
+    // Auto-load existing results on page load if available
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const resp = await fetch('/results');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.ranked_candidates) {
+            currentReport = data;
+            renderReport(data);
+          }
+        }
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>
