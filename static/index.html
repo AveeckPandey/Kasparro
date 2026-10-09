@@ -260,6 +260,41 @@
       </div>
     </div>
 
+    <!-- Original Resume Modal Viewer -->
+    <div id="resumeModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        <!-- Modal Header -->
+        <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900/95">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center">
+              <i class="fa-solid fa-file-pdf text-base"></i>
+            </div>
+            <div>
+              <h3 id="modalCandidateName" class="text-sm font-bold text-slate-100">Original Candidate Resume</h3>
+              <p id="modalFileName" class="text-xs text-slate-400 font-mono">candidate.pdf</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <a id="modalNewTabBtn" href="#" target="_blank" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center space-x-1.5">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+              <span class="hidden sm:inline">Open in</span> New Tab
+            </a>
+            <a id="modalDownloadBtn" href="#" download class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow transition flex items-center space-x-1.5">
+              <i class="fa-solid fa-download text-[11px]"></i>
+              <span>Download Original PDF</span>
+            </a>
+            <button onclick="closeResumeModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition flex items-center justify-center">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Modal Body: PDF iframe -->
+        <div class="flex-1 bg-slate-950 relative">
+          <iframe id="resumeViewerFrame" src="" class="w-full h-full border-0"></iframe>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading Spinner Overlay -->
     <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col space-y-4">
       <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -532,11 +567,17 @@
                     </h3>
 
                     <!-- View Resume Link (Red Box Area in Image-1) -->
-                    <a href="/resumes/${c.file_name}" target="_blank" title="Open ${c.file_name} in new tab" class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-lg bg-red-500/15 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/30 transition shadow-sm">
-                      <i class="fa-solid fa-file-pdf text-red-400 text-[11px]"></i>
-                      <span>View Resume</span>
-                      <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-75"></i>
-                    </a>
+                    <div class="inline-flex items-center space-x-1.5">
+                      <button onclick="previewResume('${c.file_name}', '${(c.candidate_name || '').replace(/'/g, "\\'")}')" class="inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-500/20 hover:bg-red-500/35 text-red-300 hover:text-white border border-red-500/40 transition shadow-sm cursor-pointer" title="Preview Original Resume in modal">
+                        <i class="fa-solid fa-file-pdf text-red-400 text-[11px]"></i>
+                        <span>View Resume</span>
+                        <i class="fa-solid fa-expand text-[9px] opacity-75"></i>
+                      </button>
+                      <a href="/resumes/${c.file_name}" target="_blank" title="Open original ${c.file_name} in new tab" class="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        <span>Original File</span>
+                      </a>
+                    </div>
                   </div>
 
                   <!-- Candidate Contact Info & File -->
@@ -623,16 +664,23 @@
                 <div class="flex flex-wrap items-center gap-2.5">
                   <h3 class="text-base font-bold text-slate-200">${c.candidate_name}</h3>
                   <!-- View Resume Link for Disqualified Candidate -->
-                  <a href="/resumes/${c.file_name}" target="_blank" title="View Resume PDF" class="inline-flex items-center space-x-1.5 px-2 py-0.5 text-xs font-semibold rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 border border-red-500/25 transition">
-                    <i class="fa-solid fa-file-pdf text-[11px]"></i>
-                    <span>View Resume</span>
-                  </a>
+                  <div class="inline-flex items-center space-x-1.5">
+                    <button onclick="previewResume('${c.file_name}', '${(c.candidate_name || '').replace(/'/g, "\\'")}')" class="inline-flex items-center space-x-1.5 px-2 py-0.5 text-xs font-semibold rounded-lg bg-red-500/20 hover:bg-red-500/35 text-red-300 hover:text-white border border-red-500/30 transition cursor-pointer" title="Preview Original Resume in modal">
+                      <i class="fa-solid fa-file-pdf text-[11px]"></i>
+                      <span>View Resume</span>
+                      <i class="fa-solid fa-expand text-[9px] opacity-75"></i>
+                    </button>
+                    <a href="/resumes/${c.file_name}" target="_blank" title="Open original ${c.file_name} in new tab" class="inline-flex items-center space-x-1 px-2 py-0.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition">
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                      <span>Original File</span>
+                    </a>
+                  </div>
                 </div>
                 <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
                   <span class="font-mono text-slate-400">${c.file_name}</span>
                   ${c.email ? `<span class="text-slate-300">• <i class="fa-regular fa-envelope text-blue-400 mr-1"></i>${c.email}</span>` : ''}
                   ${c.phone ? `<span class="text-slate-300">• <i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
-                  ${c.cgpa ? `<span class="text-slate-300">• CGPA: ${c.cgpa}/10</span>` : '• CGPA: Not Listed'}
+                  ${c.cgpa ? `<span class="text-slate-300">• CGPA: <span class="text-yellow-400 font-semibold">${c.cgpa}</span>/10</span>` : '• CGPA: Not Listed'}
                 </p>
               </div>
               <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
@@ -713,6 +761,37 @@
     function hideLoading() {
       loadingOverlay.classList.add('hidden');
     }
+
+    // Original Resume Modal Preview Handlers
+    function previewResume(fileName, candidateName) {
+      const modal = document.getElementById('resumeModal');
+      const frame = document.getElementById('resumeViewerFrame');
+      const modalName = document.getElementById('modalCandidateName');
+      const modalFile = document.getElementById('modalFileName');
+      const modalNewTab = document.getElementById('modalNewTabBtn');
+      const modalDownload = document.getElementById('modalDownloadBtn');
+
+      const resumeUrl = `/resumes/${encodeURIComponent(fileName)}`;
+      modalName.textContent = candidateName || 'Original Resume';
+      modalFile.textContent = fileName;
+      modalNewTab.href = resumeUrl;
+      modalDownload.href = resumeUrl;
+      modalDownload.setAttribute('download', fileName);
+      frame.src = resumeUrl;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeResumeModal() {
+      const modal = document.getElementById('resumeModal');
+      const frame = document.getElementById('resumeViewerFrame');
+      if (frame) frame.src = '';
+      if (modal) modal.classList.add('hidden');
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeResumeModal();
+    });
 
     // Auto-load existing results on page load if available
     window.addEventListener('DOMContentLoaded', async () => {

@@ -97,48 +97,83 @@ async def upload_and_screen(
     if len(files) > 100:
         files = files[:100]
 
-    # Create temporary ingestion folder
-    temp_dir = Path(tempfile.mkdtemp(prefix="kasparro_uploads_"))
-    try:
-        for uploaded_file in files:
-            safe_name = Path(uploaded_file.filename).name
-            file_destination = temp_dir / safe_name
-            with open(file_destination, "wb") as buffer:
-                shutil.copyfileobj(uploaded_file.file, buffer)
+    # Persist uploaded files into uploads directory so recruiters can view/download original files
+    uploads_dir = settings.BASE_DIR / "uploads"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
 
-        preferences = FilterPreferences(
-            min_cgpa=min_cgpa,
-            require_ai_project=require_ai,
-            require_experience=require_experience,
-            require_github_link=require_github_link,
-        )
+    for uploaded_file in files:
+        safe_name = Path(uploaded_file.filename).name
+        file_destination = uploads_dir / safe_name
+        with open(file_destination, "wb") as buffer:
+            shutil.copyfileobj(uploaded_file.file, buffer)
 
-        report = pipeline.process_directory(
-            input_dir=temp_dir,
-            preferences=preferences,
-            max_workers=settings.CONCURRENCY_LIMIT,
-        )
-        latest_report = report
+    preferences = FilterPreferences(
+        min_cgpa=min_cgpa,
+        require_ai_project=require_ai,
+        require_experience=require_experience,
+        require_github_link=require_github_link,
+    )
 
-        # Persist results
-        pipeline.export_json(report, settings.OUTPUT_FILE)
-        csv_file = settings.OUTPUT_FILE.with_suffix(".csv")
-        pipeline.export_csv(report, csv_file)
-        xlsx_file = settings.OUTPUT_FILE.with_suffix(".xlsx")
-        pipeline.export_excel(report, xlsx_file)
-        docx_file = settings.OUTPUT_FILE.with_suffix(".docx")
-        pipeline.export_docx(report, docx_file)
+    report = pipeline.process_directory(
+        input_dir=uploads_dir,
+        preferences=preferences,
+        max_workers=settings.CONCURRENCY_LIMIT,
+    )
+    latest_report = report
 
-        return report
-    finally:
-        # Clean up temporary upload files
-        shutil.rmtree(temp_dir, ignore_errors=True)
+    # Persist results
+    pipeline.export_json(report, settings.OUTPUT_FILE)
+    csv_file = settings.OUTPUT_FILE.with_suffix(".csv")
+    pipeline.export_csv(report, csv_file)
+    xlsx_file = settings.OUTPUT_FILE.with_suffix(".xlsx")
+    pipeline.export_excel(report, xlsx_file)
+    docx_file = settings.OUTPUT_FILE.with_suffix(".docx")
+    pipeline.export_docx(report, docx_file)
+
+    return report
 
 
-# Mount resumes static directory so recruiters can preview/view resumes in browser
+# Resume file serving paths
 resumes_dir = settings.BASE_DIR / "resumes"
-if resumes_dir.exists():
-    app.mount("/resumes", StaticFiles(directory=str(resumes_dir)), name="resumes")
+uploads_dir = settings.BASE_DIR / "uploads"
+uploads_dir.mkdir(parents=True, exist_ok=True)
+
+
+@app.get("/resumes/{file_name:path}")
+@app.get("/api/resume/{file_name:path}")
+def serve_resume(file_name: str):
+    """Serve the exact original resume file (checking uploads first, then sample resumes directory)."""
+    safe_name = Path(file_name).name
+
+    # Check uploads directory first
+    uploaded_path = uploads_dir / safe_name
+    if uploaded_path.exists() and uploaded_path.is_file():
+        media_type = "application/pdf" if uploaded_path.suffix.lower() == ".pdf" else "application/octet-stream"
+        return FileResponse(
+            path=str(uploaded_path),
+            media_type=media_type,
+            filename=safe_name,
+            headers={
+                "Content-Disposition": f"inline; filename=\"{safe_name}\"",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+            },
+        )
+
+    # Check base sample resumes directory
+    base_path = resumes_dir / safe_name
+    if base_path.exists() and base_path.is_file():
+        media_type = "application/pdf" if base_path.suffix.lower() == ".pdf" else "application/octet-stream"
+        return FileResponse(
+            path=str(base_path),
+            media_type=media_type,
+            filename=safe_name,
+            headers={
+                "Content-Disposition": f"inline; filename=\"{safe_name}\"",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+            },
+        )
+
+    raise HTTPException(status_code=404, detail=f"Resume file '{safe_name}' not found.")
 
 
 @app.get("/results", response_model=ScreeningReport)

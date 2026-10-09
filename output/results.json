@@ -94,7 +94,7 @@
         "cohort": "Veteran Builder",
         "status": "enriched"
       },
-      "cgpa": null,
+      "cgpa": 9.28,
       "has_related_experience": true,
       "penalties_applied": []
     },
@@ -1765,7 +1765,7 @@
         "cohort": "Unlinked / Missing",
         "status": "unlinked"
       },
-      "cgpa": null,
+      "cgpa": 7.55,
       "has_related_experience": false,
       "penalties_applied": []
     },
@@ -1907,7 +1907,7 @@
         "cohort": "Unverified (Rate Limited)",
         "status": "rate_limited"
       },
-      "cgpa": null,
+      "cgpa": 9.71,
       "has_related_experience": true,
       "penalties_applied": []
     },
@@ -2098,7 +2098,7 @@
         "cohort": "Active Developer",
         "status": "enriched"
       },
-      "cgpa": null,
+      "cgpa": 8.72,
       "has_related_experience": true,
       "penalties_applied": []
     },
@@ -2156,7 +2156,7 @@
         "cohort": "Active Developer",
         "status": "enriched"
       },
-      "cgpa": null,
+      "cgpa": 8.43,
       "has_related_experience": true,
       "penalties_applied": []
     },
@@ -2320,7 +2320,7 @@
       "phone": null,
       "resume_url": "/resumes/candidate_46.pdf",
       "github_metrics": null,
-      "cgpa": null,
+      "cgpa": 8.15,
       "has_related_experience": true,
       "penalties_applied": []
     },

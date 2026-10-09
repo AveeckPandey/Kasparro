@@ -10,13 +10,26 @@ GITHUB_REGEX = re.compile(r'github\.com/([a-zA-Z0-9_\-]+)(?:/)?', re.IGNORECASE)
 LINKEDIN_REGEX = re.compile(r'linkedin\.com/in/([a-zA-Z0-9_\-]+)(?:/)?', re.IGNORECASE)
 
 # CGPA / Grade patterns
+# Expanded separator supporting spaces, colons, hyphens, en-dashes (\u2013), em-dashes (\u2014),
+# bullets (\u2022), pipes (|), equals (=), and connector phrases like "of", "is", "with"
+CGPA_SEP = r'[\s:–—\-=•|]*(?:(?:of|is|was|at|with|secured|standing|aggregate|cumulative)\s+)?'
+
 CGPA_PATTERNS = [
-    re.compile(r'(?:cgpa|gpa|grade)[\s:]*([0-9]+(?:\.[0-9]+)?)\s*/\s*10(?:\.0)?', re.IGNORECASE),
-    re.compile(r'(?:cgpa|gpa|grade)[\s:]*([0-9]+(?:\.[0-9]+)?)\s*/\s*4(?:\.0)?', re.IGNORECASE),
-    re.compile(r'(?:cgpa|gpa)[\s:]*([0-9]+(?:\.[0-9]+)?)', re.IGNORECASE),
-    re.compile(r'\b([0-9]\.[0-9]{1,2})\s*/\s*10\b', re.IGNORECASE),
-    re.compile(r'\b([3-4]\.[0-9]{1,2})\s*/\s*4\b', re.IGNORECASE),
-    re.compile(r'(?:percentage|aggregate)[\s:]*([0-9]{2}(?:\.[0-9]+)?)\s*%', re.IGNORECASE),
+    # Explicit 10-scale: e.g. "CGPA: 9.28/10", "CGPA – 9.28 / 10", "CGPA of 9.28 out of 10"
+    re.compile(rf'(?:cgpa|gpa|grade|score)[\s:–—\-=•|]*(?:(?:of|is|was|at|with|secured)\s+)?([0-9]+(?:\.[0-9]+)?)\s*(?:/|out\s+of)\s*10(?:\.0)?', re.IGNORECASE),
+    # Explicit 4-scale: e.g. "GPA: 3.8/4.0", "CGPA – 3.8 / 4"
+    re.compile(rf'(?:cgpa|gpa|grade|score)[\s:–—\-=•|]*(?:(?:of|is|was|at|with|secured)\s+)?([0-9]+(?:\.[0-9]+)?)\s*(?:/|out\s+of)\s*4(?:\.0)?', re.IGNORECASE),
+    # Forward CGPA/GPA with broad separators: "CGPA – 9.28", "CGPA - 9.71", "CGPA : 8.3", "CGPA of 8.72", "CGPA 6.3"
+    re.compile(rf'(?:cgpa|gpa){CGPA_SEP}([0-9]+(?:\.[0-9]+)?)', re.IGNORECASE),
+    # Reverse order: "7.55 CGPA", "8.43 CGPA", "9.7 GPA", "9.28 / 10 CGPA"
+    re.compile(r'\b([0-9]+(?:\.[0-9]+)?)\s*(?:/|out\s+of)\s*10(?:\.0)?\s*(?:cgpa|gpa)\b', re.IGNORECASE),
+    re.compile(r'\b([0-9]+(?:\.[0-9]+)?)\s*(?:/|out\s+of)\s*4(?:\.0)?\s*(?:cgpa|gpa)\b', re.IGNORECASE),
+    re.compile(r'\b([0-9]+(?:\.[0-9]+)?)\s*(?:cgpa|gpa)\b', re.IGNORECASE),
+    # Naked fractions on 10 or 4 scale: "8.5/10", "9.28/10.0", "3.8/4.0"
+    re.compile(r'\b([0-9]\.[0-9]{1,2})\s*/\s*10(?:\.0)?\b', re.IGNORECASE),
+    re.compile(r'\b([3-4]\.[0-9]{1,2})\s*/\s*4(?:\.0)?\b', re.IGNORECASE),
+    # Percentage patterns: "Percentage: 87%", "85.4%"
+    re.compile(r'(?:percentage|aggregate|marks|percent)[\s:–—\-=•|]*([0-9]{2}(?:\.[0-9]+)?)\s*%', re.IGNORECASE),
     re.compile(r'\b([6-9][0-9](?:\.[0-9]+)?)\s*%\b', re.IGNORECASE),
 ]
 
@@ -92,8 +105,10 @@ def extract_cgpa(text: str) -> Tuple[Optional[float], Optional[str]]:
             raw_str = match.group(0)
             try:
                 val = float(raw_val)
+                if val <= 0.0 or val > 100.0:
+                    continue
                 # Check scale
-                if "/ 4" in raw_str.lower() or "/4" in raw_str.lower():
+                if "/ 4" in raw_str.lower() or "/4" in raw_str.lower() or "out of 4" in raw_str.lower():
                     # 4.0 scale -> convert to 10.0 scale
                     normalized = round((val / 4.0) * 10.0, 2)
                     return min(10.0, normalized), raw_str.strip()
@@ -101,8 +116,8 @@ def extract_cgpa(text: str) -> Tuple[Optional[float], Optional[str]]:
                     # Percentage -> normalize to 10.0 scale
                     normalized = round(val / 10.0, 2)
                     return min(10.0, normalized), raw_str.strip()
-                elif val <= 4.0 and "/10" not in raw_str:
-                    # Likely a 4-point scale if <= 4.0
+                elif val <= 4.0 and "/10" not in raw_str and "10" not in raw_str:
+                    # Likely a 4-point scale if <= 4.0 and not on 10 scale
                     normalized = round((val / 4.0) * 10.0, 2)
                     return min(10.0, normalized), raw_str.strip()
                 elif val <= 10.0:

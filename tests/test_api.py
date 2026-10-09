@@ -45,3 +45,15 @@ def test_api_download_docx():
     resp = client.get("/download_docx")
     assert resp.status_code == 200
     assert "application/vnd.openxmlformats" in resp.headers["content-type"]
+
+
+def test_api_serve_resume():
+    resp = client.get("/resumes/candidate_30.pdf")
+    assert resp.status_code == 200
+    assert "application/pdf" in resp.headers["content-type"]
+    assert "inline" in resp.headers["content-disposition"]
+
+
+def test_api_serve_resume_not_found():
+    resp = client.get("/resumes/non_existent_file.pdf")
+    assert resp.status_code == 404

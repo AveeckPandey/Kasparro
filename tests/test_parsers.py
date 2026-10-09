@@ -51,6 +51,31 @@ def test_extract_cgpa_percentage():
     assert val == 8.25
 
 
+def test_extract_cgpa_en_dash_and_hyphen():
+    # Candidate 30 actual format with en-dash: "• CGPA – 9.28"
+    c30_text = "Chaitanya Bharati Institute of Technology\n• CGPA – 9.28\n• Student Lead"
+    val, raw = extract_cgpa(c30_text)
+    assert val == 9.28
+
+    # Candidate 38 format with ASCII hyphen: "CGPA - 9.71"
+    c38_text = "New Horizon College of Engineering | CGPA - 9.71"
+    val, raw = extract_cgpa(c38_text)
+    assert val == 9.71
+
+
+def test_extract_cgpa_inverted_and_prepositions():
+    # Candidate 15 & 24 inverted format: "7.55 CGPA", "8.43 CGPA"
+    val, _ = extract_cgpa("Completed degree with 7.55 CGPA in 2024")
+    assert val == 7.55
+
+    val, _ = extract_cgpa("(2021-2025) - 8.43 CGPA")
+    assert val == 8.43
+
+    # Candidate 23 format with preposition: "CGPA of 8.72"
+    val, _ = extract_cgpa("Engineering College with a CGPA of 8.72.")
+    assert val == 8.72
+
+
 def test_parser_unreadable_file_tolerance(tmp_path):
     bad_file = tmp_path / "corrupt.pdf"
     bad_file.write_bytes(b"NOT A REAL PDF CONTENT RANDOM BYTES")
