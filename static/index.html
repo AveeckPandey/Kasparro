@@ -455,17 +455,22 @@
             </div>
 
             <!-- GitHub Metrics & Cohort -->
-            ${c.github_metrics ? `
-              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
-                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">
-                  <i class="fa-brands fa-github mr-1"></i>${c.github_metrics.cohort}
+            ${c.github_metrics && c.github_metrics.status === 'enriched' ? `
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300 bg-slate-900/40 p-2.5 rounded-lg border border-slate-800/80">
+                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold flex items-center space-x-1">
+                  <i class="fa-brands fa-github"></i>
+                  <span>${c.github_metrics.cohort}</span>
                 </span>
                 <span class="text-slate-400">•</span>
-                <span>${c.github_metrics.account_age_years} yrs on GitHub</span>
+                <span><strong class="text-slate-200">${c.github_metrics.account_age_years}</strong> yrs on GitHub</span>
                 <span class="text-slate-400">•</span>
-                <span>${c.github_metrics.public_repos} repos</span>
+                <span><strong class="text-slate-200">${c.github_metrics.public_repos}</strong> repos (${c.github_metrics.original_repos_count || 0} original)</span>
                 <span class="text-slate-400">•</span>
-                <span>${c.github_metrics.recent_commits} commits</span>
+                <span><strong class="text-emerald-400">${c.github_metrics.total_contributions || c.github_metrics.recent_commits}</strong> contributions</span>
+                <span class="text-slate-400">•</span>
+                <span><strong class="text-blue-400">${c.github_metrics.recent_commits}</strong> commits</span>
+                ${c.github_metrics.prs_count > 0 ? `<span class="text-slate-400">•</span><span><strong class="text-indigo-400">${c.github_metrics.prs_count}</strong> PRs</span>` : ''}
+                ${c.github_metrics.total_stars > 0 ? `<span class="text-slate-400">•</span><span><i class="fa-solid fa-star text-yellow-400 text-[10px]"></i> <strong class="text-yellow-400">${c.github_metrics.total_stars}</strong> stars</span>` : ''}
               </div>
             ` : ''}
 

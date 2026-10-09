@@ -271,7 +271,9 @@ class ScreeningPipeline:
             "rank", "candidate_name", "eligible", "total_score",
             "ai_project_depth", "python_backend", "cloud_fullstack", "github", "engineering_depth",
             "cgpa", "has_related_experience", "github_cohort", "github_years",
-            "github_repos", "github_commits", "matched_skills", "rejection_reasons", "reason_narrative"
+            "github_repos", "github_original_repos", "github_contributions",
+            "github_commits", "github_prs", "github_stars",
+            "matched_skills", "rejection_reasons", "reason_narrative"
         ]
 
         with open(path, "w", newline="", encoding="utf-8") as f:
@@ -293,7 +295,11 @@ class ScreeningPipeline:
                     "github_cohort": c.github_metrics.cohort if c.github_metrics else "N/A",
                     "github_years": c.github_metrics.account_age_years if c.github_metrics else 0.0,
                     "github_repos": c.github_metrics.public_repos if c.github_metrics else 0,
+                    "github_original_repos": c.github_metrics.original_repos_count if c.github_metrics else 0,
+                    "github_contributions": c.github_metrics.total_contributions if c.github_metrics else 0,
                     "github_commits": c.github_metrics.recent_commits if c.github_metrics else 0,
+                    "github_prs": c.github_metrics.prs_count if c.github_metrics else 0,
+                    "github_stars": c.github_metrics.total_stars if c.github_metrics else 0,
                     "matched_skills": "; ".join(c.matched_skills),
                     "rejection_reasons": "; ".join(c.rejection_reasons),
                     "reason_narrative": c.reason_50_to_100_words,

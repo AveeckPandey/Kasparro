@@ -19,7 +19,12 @@ class GitHubMetrics(BaseModel):
     profile_url: Optional[str] = None
     account_age_years: float = Field(default=0.0, description="Years since GitHub account creation")
     public_repos: int = Field(default=0, description="Total public repositories")
+    original_repos_count: int = Field(default=0, description="Non-forked original repositories")
     recent_commits: int = Field(default=0, description="Total commits in recent public events")
+    prs_count: int = Field(default=0, description="Total Pull Requests created/participated")
+    issues_count: int = Field(default=0, description="Issues opened or participated in")
+    total_contributions: int = Field(default=0, description="Total contributions (commits + PRs + issues + reviews)")
+    total_stars: int = Field(default=0, description="Total stars received across public repos")
     recent_events_count: int = Field(default=0, description="Count of recent public events")
     relevant_ai_python_repos: int = Field(default=0, description="Count of Python / AI / Backend repositories")
     cohort: str = Field(default="Unlinked / Missing", description="Veteran Builder, Active Builder, Emerging, Dormant, Unlinked")

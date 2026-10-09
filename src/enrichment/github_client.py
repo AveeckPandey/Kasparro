@@ -118,11 +118,13 @@ class GitHubClient:
                     created_dt = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
                     age_years = round((now - created_dt).total_seconds() / (365.25 * 86400), 1)
 
-                # 2. Fetch Public Events (recent activity pulse & commits)
+                # 2. Fetch Public Events (recent activity pulse, commits, and PRs)
                 events_resp = client.get(f"{base_url}/users/{username}/events/public?per_page=100")
                 events = events_resp.json() if events_resp.status_code == 200 else []
 
                 recent_commits = 0
+                prs_count = 0
+                issues_count = 0
                 days_since_active = 999
                 if isinstance(events, list) and events:
                     # Parse latest event date
@@ -131,19 +133,32 @@ class GitHubClient:
                         latest_dt = datetime.fromisoformat(latest_str.replace("Z", "+00:00"))
                         days_since_active = (now - latest_dt).days
 
-                    # Sum commits in push events
+                    # Track events: commits, PRs, issues
                     for ev in events:
-                        if ev.get("type") == "PushEvent":
+                        ev_type = ev.get("type")
+                        if ev_type == "PushEvent":
                             commits = ev.get("payload", {}).get("commits", [])
                             recent_commits += len(commits)
+                        elif ev_type in ["PullRequestEvent", "PullRequestReviewEvent"]:
+                            prs_count += 1
+                        elif ev_type in ["IssuesEvent", "IssueCommentEvent"]:
+                            issues_count += 1
 
-                # 3. Fetch Repositories for relevance
+                total_contributions = recent_commits + prs_count + issues_count
+
+                # 3. Fetch Repositories for relevance, stars, and original vs forked ratio
                 repos_resp = client.get(f"{base_url}/users/{username}/repos?sort=updated&per_page=30")
                 repos = repos_resp.json() if repos_resp.status_code == 200 else []
 
                 relevant_ai_python = 0
+                original_repos = 0
+                total_stars = 0
                 if isinstance(repos, list):
                     for repo in repos:
+                        if not repo.get("fork", False):
+                            original_repos += 1
+                        total_stars += repo.get("stargazers_count", 0)
+
                         lang = (repo.get("language") or "").lower()
                         desc = (repo.get("description") or "").lower()
                         name = (repo.get("name") or "").lower()
@@ -158,10 +173,10 @@ class GitHubClient:
                             relevant_ai_python += 1
 
                 # 4. Cohort Classification
-                cohort = self._determine_cohort(age_years, public_repos, recent_commits, days_since_active)
+                cohort = self._determine_cohort(age_years, public_repos, recent_commits + prs_count, days_since_active)
 
                 # 5. Calculate Score (0-10)
-                # 0-5 for recency & commits
+                # 0-5 for recency, commits, and PR contributions
                 activity_score = 0.0
                 if days_since_active <= 30:
                     activity_score = 5.0
@@ -169,25 +184,35 @@ class GitHubClient:
                     activity_score = 3.5
                 elif days_since_active <= 365:
                     activity_score = 2.0
-                elif recent_commits > 0:
+                elif total_contributions > 0:
                     activity_score = 1.0
 
-                # 0-5 for maintained & relevant repos
+                # Extra booster for PR collaboration
+                if prs_count > 0:
+                    activity_score = min(5.0, activity_score + 0.5)
+
+                # 0-5 for maintained & relevant repos (rewarding original repos and stars)
                 repo_score = 0.0
                 if relevant_ai_python >= 3:
                     repo_score = 5.0
                 elif relevant_ai_python >= 1:
                     repo_score = 3.5
-                elif public_repos >= 5:
+                elif original_repos >= 4:
                     repo_score = 2.5
                 elif public_repos >= 1:
                     repo_score = 1.0
 
+                if total_stars >= 5:
+                    repo_score = min(5.0, repo_score + 0.5)
+
                 total_gh_score = min(10.0, round(activity_score + repo_score, 1))
 
                 # Human-readable summary
+                pr_text = f", {prs_count} PRs" if prs_count > 0 else ""
+                star_text = f", {total_stars} stars" if total_stars > 0 else ""
                 summary = (
-                    f"{cohort} ({age_years} yrs on GitHub, {public_repos} repos, {recent_commits} recent commits). "
+                    f"{cohort} ({age_years} yrs on GitHub, {public_repos} repos [{original_repos} original], "
+                    f"{total_contributions} contributions [{recent_commits} commits{pr_text}]{star_text}). "
                     f"{relevant_ai_python} relevant Python/AI repositories identified."
                 )
 
@@ -196,7 +221,12 @@ class GitHubClient:
                     profile_url=f"https://github.com/{username}",
                     account_age_years=age_years,
                     public_repos=public_repos,
+                    original_repos_count=original_repos,
                     recent_commits=recent_commits,
+                    prs_count=prs_count,
+                    issues_count=issues_count,
+                    total_contributions=total_contributions,
+                    total_stars=total_stars,
                     recent_events_count=len(events) if isinstance(events, list) else 0,
                     relevant_ai_python_repos=relevant_ai_python,
                     cohort=cohort,
