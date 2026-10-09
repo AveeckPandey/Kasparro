@@ -78,6 +78,9 @@ class CandidateResult(BaseModel):
     concerns: List[str] = Field(default_factory=list)
     rejection_reasons: List[str] = Field(default_factory=list)
     reason_50_to_100_words: str = Field(default="", description="Detailed 50-100 word justification")
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    resume_url: Optional[str] = None
     github_metrics: Optional[GitHubMetrics] = None
     cgpa: Optional[float] = None
     has_related_experience: bool = False

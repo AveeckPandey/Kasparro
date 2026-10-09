@@ -194,6 +194,9 @@ class ScreeningPipeline:
                 rank=None,
                 candidate_name=resume.candidate_name,
                 file_name=resume.file_name,
+                email=resume.email,
+                phone=resume.phone,
+                resume_url=f"/resumes/{resume.file_name}",
                 eligible=False,
                 total_score=0.0,
                 score_breakdown=ScoreBreakdown(),
@@ -234,6 +237,9 @@ class ScreeningPipeline:
             rank=None,  # Assigned after batch sorting
             candidate_name=resume.candidate_name,
             file_name=resume.file_name,
+            email=resume.email,
+            phone=resume.phone,
+            resume_url=f"/resumes/{resume.file_name}",
             eligible=True,
             total_score=total_score,
             score_breakdown=breakdown,
@@ -268,7 +274,7 @@ class ScreeningPipeline:
         
         all_candidates = report.ranked_candidates + report.rejected_candidates
         fieldnames = [
-            "rank", "candidate_name", "eligible", "total_score",
+            "rank", "candidate_name", "email", "phone", "file_name", "eligible", "total_score",
             "ai_project_depth", "python_backend", "cloud_fullstack", "github", "engineering_depth",
             "cgpa", "has_related_experience", "github_cohort", "github_years",
             "github_repos", "github_original_repos", "github_contributions",
@@ -283,6 +289,9 @@ class ScreeningPipeline:
                 writer.writerow({
                     "rank": c.rank if c.rank is not None else "Rejected",
                     "candidate_name": c.candidate_name,
+                    "email": c.email or "N/A",
+                    "phone": c.phone or "N/A",
+                    "file_name": c.file_name,
                     "eligible": c.eligible,
                     "total_score": c.total_score,
                     "ai_project_depth": c.score_breakdown.ai_project_depth,
@@ -304,3 +313,153 @@ class ScreeningPipeline:
                     "rejection_reasons": "; ".join(c.rejection_reasons),
                     "reason_narrative": c.reason_50_to_100_words,
                 })
+
+    @staticmethod
+    def export_excel(report: ScreeningReport, output_path: str | Path) -> None:
+        """Export screening results to a styled Excel (.xlsx) spreadsheet using openpyxl."""
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Candidate Shortlist"
+
+        headers = [
+            "Rank", "Candidate Name", "Email", "Phone", "Resume File", "Status",
+            "Total Score", "AI Depth (40)", "Python (30)", "Cloud (15)", "GitHub (10)", "Eng (5)",
+            "CGPA", "Experience", "GitHub Cohort", "GitHub Years", "Public Repos", "Original Repos",
+            "Total Contributions", "Commits", "PRs", "Stars", "Matched Skills", "Evaluation Justification"
+        ]
+
+        # Header styling
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="1F497D", end_color="1F497D", fill_type="solid")
+        border_thin = Border(
+            left=Side(style="thin", color="D9D9D9"),
+            right=Side(style="thin", color="D9D9D9"),
+            top=Side(style="thin", color="D9D9D9"),
+            bottom=Side(style="thin", color="D9D9D9"),
+        )
+
+        ws.append(headers)
+        for col_idx in range(1, len(headers) + 1):
+            cell = ws.cell(row=1, column=col_idx)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+        all_candidates = report.ranked_candidates + report.rejected_candidates
+        for row_idx, c in enumerate(all_candidates, start=2):
+            row_data = [
+                c.rank if c.rank is not None else "Disqualified",
+                c.candidate_name,
+                c.email or "N/A",
+                c.phone or "N/A",
+                c.file_name,
+                "Eligible" if c.eligible else "Disqualified",
+                c.total_score,
+                c.score_breakdown.ai_project_depth,
+                c.score_breakdown.python_backend,
+                c.score_breakdown.cloud_fullstack,
+                c.score_breakdown.github,
+                c.score_breakdown.engineering_depth,
+                c.cgpa if c.cgpa is not None else "N/A",
+                "Yes" if c.has_related_experience else "No",
+                c.github_metrics.cohort if c.github_metrics else "N/A",
+                c.github_metrics.account_age_years if c.github_metrics else 0.0,
+                c.github_metrics.public_repos if c.github_metrics else 0,
+                c.github_metrics.original_repos_count if c.github_metrics else 0,
+                c.github_metrics.total_contributions if c.github_metrics else 0,
+                c.github_metrics.recent_commits if c.github_metrics else 0,
+                c.github_metrics.prs_count if c.github_metrics else 0,
+                c.github_metrics.total_stars if c.github_metrics else 0,
+                ", ".join(c.matched_skills),
+                c.reason_50_to_100_words,
+            ]
+            ws.append(row_data)
+
+            # Apply cell formatting
+            for col_idx in range(1, len(row_data) + 1):
+                cell = ws.cell(row=row_idx, column=col_idx)
+                cell.border = border_thin
+                if col_idx in [1, 6, 7, 13, 14]:
+                    cell.alignment = Alignment(horizontal="center")
+                if not c.eligible and col_idx == 6:
+                    cell.font = Font(color="9C0006", bold=True)
+                    cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+                elif c.eligible and col_idx == 6:
+                    cell.font = Font(color="006100", bold=True)
+                    cell.fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+
+        # Set column widths
+        for col in ws.columns:
+            max_len = max(len(str(cell.value or '')) for cell in col)
+            col_letter = openpyxl.utils.get_column_letter(col[0].column)
+            ws.column_dimensions[col_letter].width = min(40, max(12, max_len + 2))
+
+        wb.save(path)
+
+    @staticmethod
+    def export_docx(report: ScreeningReport, output_path: str | Path) -> None:
+        """Export screening results to a formal Word document (.docx) using python-docx."""
+        import docx
+        from docx.shared import Inches, Pt, RGBColor
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        doc = docx.Document()
+
+        # Title
+        title = doc.add_heading("Candidate Resume Screening & Ranking Report", level=0)
+        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        subtitle = doc.add_paragraph("Role: SDE Internship (Python Fundamentals & Agentic AI)")
+        subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # Summary Section
+        doc.add_heading("1. Batch Summary", level=1)
+        bs = report.batch_summary
+        p_summary = doc.add_paragraph()
+        p_summary.add_run(f"• Total Resumes Ingested: {bs.total_resumes}\n")
+        p_summary.add_run(f"• Successfully Parsed: {bs.successfully_parsed}\n")
+        p_summary.add_run(f"• Eligible Candidates: {bs.eligible}\n")
+        p_summary.add_run(f"• Disqualified Candidates: {bs.rejected}\n")
+        p_summary.add_run(f"• Average Score (Eligible): {bs.average_score_eligible} / 100\n")
+
+        # Top Shortlisted Candidates Table
+        doc.add_heading("2. Shortlisted Candidates", level=1)
+        table = doc.add_table(rows=1, cols=6)
+        table.style = 'Table Grid'
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = "Rank"
+        hdr_cells[1].text = "Candidate Name"
+        hdr_cells[2].text = "Email"
+        hdr_cells[3].text = "Phone"
+        hdr_cells[4].text = "Score"
+        hdr_cells[5].text = "GitHub Cohort"
+
+        for c in report.ranked_candidates:
+            row_cells = table.add_row().cells
+            row_cells[0].text = f"#{c.rank}"
+            row_cells[1].text = c.candidate_name
+            row_cells[2].text = c.email or "N/A"
+            row_cells[3].text = c.phone or "N/A"
+            row_cells[4].text = f"{c.total_score:.1f}"
+            row_cells[5].text = c.github_metrics.cohort if c.github_metrics else "N/A"
+
+        # Detailed Profiles Section
+        doc.add_heading("3. Detailed Candidate Evaluations", level=1)
+        for c in report.ranked_candidates[:15]:
+            doc.add_heading(f"#{c.rank} - {c.candidate_name} ({c.total_score:.1f}/100)", level=2)
+            p = doc.add_paragraph()
+            p.add_run(f"Contact: {c.email or 'N/A'} | {c.phone or 'N/A'} | Resume: {c.file_name}\n").bold = True
+            p.add_run(f"Score Breakdown: AI Depth: {c.score_breakdown.ai_project_depth} | Python: {c.score_breakdown.python_backend} | Cloud: {c.score_breakdown.cloud_fullstack} | GitHub: {c.score_breakdown.github} | Eng: {c.score_breakdown.engineering_depth}\n")
+            if c.github_metrics:
+                p.add_run(f"GitHub: {c.github_metrics.cohort} ({c.github_metrics.account_age_years} yrs, {c.github_metrics.public_repos} repos, {c.github_metrics.total_contributions} contributions, {c.github_metrics.prs_count} PRs)\n")
+            p.add_run(f"Evaluation Notes: {c.reason_50_to_100_words}\n")
+
+        doc.save(path)

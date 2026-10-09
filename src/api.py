@@ -73,6 +73,10 @@ def screen_resumes(req: ScreenRequest):
         pipeline.export_json(report, settings.OUTPUT_FILE)
         csv_file = settings.OUTPUT_FILE.with_suffix(".csv")
         pipeline.export_csv(report, csv_file)
+        xlsx_file = settings.OUTPUT_FILE.with_suffix(".xlsx")
+        pipeline.export_excel(report, xlsx_file)
+        docx_file = settings.OUTPUT_FILE.with_suffix(".docx")
+        pipeline.export_docx(report, docx_file)
 
         return report
     except Exception as e:
@@ -120,11 +124,21 @@ async def upload_and_screen(
         pipeline.export_json(report, settings.OUTPUT_FILE)
         csv_file = settings.OUTPUT_FILE.with_suffix(".csv")
         pipeline.export_csv(report, csv_file)
+        xlsx_file = settings.OUTPUT_FILE.with_suffix(".xlsx")
+        pipeline.export_excel(report, xlsx_file)
+        docx_file = settings.OUTPUT_FILE.with_suffix(".docx")
+        pipeline.export_docx(report, docx_file)
 
         return report
     finally:
         # Clean up temporary upload files
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+# Mount resumes static directory so recruiters can preview/view resumes in browser
+resumes_dir = settings.BASE_DIR / "resumes"
+if resumes_dir.exists():
+    app.mount("/resumes", StaticFiles(directory=str(resumes_dir)), name="resumes")
 
 
 @app.get("/results", response_model=ScreeningReport)
@@ -158,4 +172,47 @@ def download_csv():
         path=str(csv_file),
         filename="screening_results.csv",
         media_type="text/csv",
+    )
+
+
+@app.get("/download_excel")
+def download_excel():
+    """Download the screening report as an Excel (.xlsx) spreadsheet with contact details."""
+    xlsx_file = settings.OUTPUT_FILE.with_suffix(".xlsx")
+    if not xlsx_file.exists():
+        # Generate on the fly if report available
+        if latest_report:
+            pipeline.export_excel(latest_report, xlsx_file)
+        elif settings.OUTPUT_FILE.exists():
+            import json
+            with open(settings.OUTPUT_FILE, "r", encoding="utf-8") as f:
+                rep = ScreeningReport(**json.load(f))
+                pipeline.export_excel(rep, xlsx_file)
+        else:
+            raise HTTPException(status_code=404, detail="Excel report not generated yet.")
+    return FileResponse(
+        path=str(xlsx_file),
+        filename="screening_shortlist.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+@app.get("/download_docx")
+def download_docx():
+    """Download the screening report as a Word document (.docx) with contact details."""
+    docx_file = settings.OUTPUT_FILE.with_suffix(".docx")
+    if not docx_file.exists():
+        if latest_report:
+            pipeline.export_docx(latest_report, docx_file)
+        elif settings.OUTPUT_FILE.exists():
+            import json
+            with open(settings.OUTPUT_FILE, "r", encoding="utf-8") as f:
+                rep = ScreeningReport(**json.load(f))
+                pipeline.export_docx(rep, docx_file)
+        else:
+            raise HTTPException(status_code=404, detail="Word document report not generated yet.")
+    return FileResponse(
+        path=str(docx_file),
+        filename="screening_report.docx",
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )

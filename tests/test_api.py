@@ -33,3 +33,15 @@ def test_api_download_csv():
     resp = client.get("/download_csv")
     assert resp.status_code == 200
     assert "text/csv" in resp.headers["content-type"]
+
+
+def test_api_download_excel():
+    resp = client.get("/download_excel")
+    assert resp.status_code == 200
+    assert "application/vnd.openxmlformats" in resp.headers["content-type"]
+
+
+def test_api_download_docx():
+    resp = client.get("/download_docx")
+    assert resp.status_code == 200
+    assert "application/vnd.openxmlformats" in resp.headers["content-type"]

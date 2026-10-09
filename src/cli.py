@@ -130,6 +130,16 @@ def run_cli() -> None:
         pipeline.export_csv(report, csv_path)
         console.print(f"[green][OK] Exported CSV results to:[/green] {csv_path}")
 
+    if "xlsx" in formats or "excel" in formats or "all" in formats:
+        xlsx_path = Path(args.output).with_suffix(".xlsx")
+        pipeline.export_excel(report, xlsx_path)
+        console.print(f"[green][OK] Exported Excel spreadsheet to:[/green] {xlsx_path}")
+
+    if "docx" in formats or "doc" in formats or "all" in formats:
+        docx_path = Path(args.output).with_suffix(".docx")
+        pipeline.export_docx(report, docx_path)
+        console.print(f"[green][OK] Exported Word Document to:[/green] {docx_path}")
+
     # Display Batch Summary
     summary = report.batch_summary
     summary_table = Table(title="Batch Processing Summary", show_header=True, header_style="bold magenta")

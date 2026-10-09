@@ -26,18 +26,26 @@
           <p class="text-xs text-slate-400">SDE Internship • Python Fundamentals & Agentic AI Exposure</p>
         </div>
       </div>
-      <div class="flex items-center space-x-3">
-        <button id="btnPreloadSample" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40 transition flex items-center space-x-1.5">
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btnPreloadSample" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40 transition flex items-center space-x-1.5">
           <i class="fa-solid fa-folder-open"></i>
           <span>Screen 50 Sample Resumes</span>
         </button>
-        <button id="btnExportJson" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-download"></i>
-          <span>JSON</span>
-        </button>
-        <button id="btnExportCsv" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
+        <a href="/download_excel" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-file-excel text-emerald-400"></i>
+          <span>Excel (.xlsx)</span>
+        </a>
+        <a href="/download_docx" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-file-word text-blue-400"></i>
+          <span>Docx (.docx)</span>
+        </a>
+        <a href="/download_csv" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
           <i class="fa-solid fa-file-csv"></i>
           <span>CSV</span>
+        </a>
+        <button id="btnExportJson" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-code"></i>
+          <span>JSON</span>
         </button>
       </div>
     </div>
@@ -178,9 +186,25 @@
           <p class="text-xs font-medium text-slate-400">Disqualified</p>
           <p id="sumRejected" class="text-2xl font-bold text-red-400 mt-1">0</p>
         </div>
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 text-center col-span-2 md:col-span-1">
-          <p class="text-xs font-medium text-slate-400">Avg Eligible Score</p>
-          <p id="sumAvgScore" class="text-2xl font-bold text-amber-400 mt-1">0 / 100</p>
+        <!-- Card 5 (Image-2): Interactive Cutoff Score Dialer + Average Score -->
+        <div class="bg-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/70 rounded-xl p-3.5 text-center col-span-2 md:col-span-1 flex flex-col justify-between shadow-lg shadow-amber-500/10 transition">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-bold text-slate-200 flex items-center space-x-1">
+                <i class="fa-solid fa-gauge-high text-amber-400"></i>
+                <span>Min Passing Score:</span>
+              </span>
+              <span id="scoreCutoffDisplay" class="font-extrabold text-amber-300 px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-xs">≥ 0 pts</span>
+            </div>
+            <input type="range" id="scoreCutoffSlider" min="0" max="95" step="5" value="0" class="w-full accent-amber-400 cursor-pointer">
+            <div class="flex justify-between text-[9px] text-slate-400 mt-0.5 font-medium">
+              <span>0</span><span>40</span><span>60</span><span>80</span><span>95</span>
+            </div>
+          </div>
+          <div class="mt-2 pt-1.5 border-t border-slate-700/60 flex items-center justify-between">
+            <span class="text-[11px] font-medium text-slate-400">Avg Eligible Score</span>
+            <span id="sumAvgScore" class="text-lg font-extrabold text-amber-400">0 / 100</span>
+          </div>
         </div>
       </div>
 
@@ -198,17 +222,33 @@
 
     <!-- Candidate Tabs & Search -->
     <div id="resultsSection" class="hidden space-y-6">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div class="flex items-center space-x-2">
-          <button id="tabEligible" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md shadow-blue-600/30">
-            Ranked Eligible (<span id="countEligibleTab">0</span>)
-          </button>
-          <button id="tabRejected" class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">
-            Disqualified (<span id="countRejectedTab">0</span>)
-          </button>
+      <!-- Filter Bar (Image-3 Area): Tabs + Top 5/10 Quick Filters + Search -->
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Main Tabs -->
+          <div class="flex items-center space-x-2">
+            <button id="tabEligible" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md shadow-blue-600/30">
+              Ranked Eligible (<span id="countEligibleTab">0</span>)
+            </button>
+            <button id="tabRejected" class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">
+              Disqualified (<span id="countRejectedTab">0</span>)
+            </button>
+          </div>
+
+          <!-- Top 5 / Top 10 Quick Filter Pills (Image-3 Area) -->
+          <div id="topNFilterGroup" class="flex items-center space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-700/80">
+            <span class="text-[11px] font-semibold text-slate-400 px-2 flex items-center space-x-1">
+              <i class="fa-solid fa-trophy text-amber-400 text-[10px]"></i>
+              <span>Show:</span>
+            </span>
+            <button id="btnFilterAll" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white transition">All</button>
+            <button id="btnFilterTop5" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">🏆 Top 5</button>
+            <button id="btnFilterTop10" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">🌟 Top 10</button>
+            <button id="btnFilterTop20" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Top 20</button>
+          </div>
         </div>
 
-        <div class="relative w-full sm:w-72">
+        <div class="relative w-full lg:w-72">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
           <input type="text" id="searchInput" placeholder="Search candidate or skill..." class="w-full bg-slate-800/80 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
         </div>
@@ -379,21 +419,93 @@
       renderCandidates();
     }
 
+    let currentCutoff = 0;
+    let topNLimit = 'all';
+
+    // Cutoff Score Slider (Image-2 Area)
+    const scoreCutoffSlider = document.getElementById('scoreCutoffSlider');
+    const scoreCutoffDisplay = document.getElementById('scoreCutoffDisplay');
+    scoreCutoffSlider.addEventListener('input', (e) => {
+      currentCutoff = parseFloat(e.target.value);
+      scoreCutoffDisplay.textContent = currentCutoff === 0 ? '≥ 0 pts' : `≥ ${currentCutoff} pts`;
+      renderCandidates();
+    });
+
+    // Top 5 / Top 10 Quick Filter Buttons (Image-3 Area)
+    const btnFilterAll = document.getElementById('btnFilterAll');
+    const btnFilterTop5 = document.getElementById('btnFilterTop5');
+    const btnFilterTop10 = document.getElementById('btnFilterTop10');
+    const btnFilterTop20 = document.getElementById('btnFilterTop20');
+
+    function setActiveTopNButton(activeBtn) {
+      [btnFilterAll, btnFilterTop5, btnFilterTop10, btnFilterTop20].forEach(b => {
+        b.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition';
+      });
+      activeBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white transition';
+    }
+
+    btnFilterAll.addEventListener('click', () => {
+      topNLimit = 'all';
+      setActiveTopNButton(btnFilterAll);
+      renderCandidates();
+    });
+    btnFilterTop5.addEventListener('click', () => {
+      topNLimit = 5;
+      setActiveTopNButton(btnFilterTop5);
+      renderCandidates();
+    });
+    btnFilterTop10.addEventListener('click', () => {
+      topNLimit = 10;
+      setActiveTopNButton(btnFilterTop10);
+      renderCandidates();
+    });
+    btnFilterTop20.addEventListener('click', () => {
+      topNLimit = 20;
+      setActiveTopNButton(btnFilterTop20);
+      renderCandidates();
+    });
+
     function renderCandidates() {
+      if (!currentReport) return;
       candidatesList.innerHTML = '';
-      const list = activeTab === 'eligible' ? currentReport.ranked_candidates : currentReport.rejected_candidates;
+      
+      let list = activeTab === 'eligible' ? [...currentReport.ranked_candidates] : [...currentReport.rejected_candidates];
       const q = searchInput.value.toLowerCase().trim();
 
-      const filtered = list.filter(c => {
+      // Apply Score Cutoff Filter for eligible candidates (Image-2 Dialer)
+      if (activeTab === 'eligible' && currentCutoff > 0) {
+        list = list.filter(c => c.total_score >= currentCutoff);
+      }
+
+      // Apply Search Filter
+      let filtered = list.filter(c => {
         if (!q) return true;
         const inName = c.candidate_name.toLowerCase().includes(q);
+        const inEmail = (c.email || '').toLowerCase().includes(q);
+        const inPhone = (c.phone || '').toLowerCase().includes(q);
         const inSkills = (c.matched_skills || []).some(s => s.toLowerCase().includes(q));
         const inReasons = (c.rejection_reasons || []).some(r => r.toLowerCase().includes(q));
-        return inName || inSkills || inReasons;
+        return inName || inEmail || inPhone || inSkills || inReasons;
       });
 
+      // Apply Top N Filter (Image-3 Area)
+      if (activeTab === 'eligible' && topNLimit !== 'all') {
+        filtered = filtered.slice(0, topNLimit);
+      }
+
+      // Update counters & dynamic average score
+      if (activeTab === 'eligible') {
+        countEligibleTab.textContent = filtered.length;
+        if (filtered.length > 0) {
+          const avg = (filtered.reduce((acc, c) => acc + c.total_score, 0) / filtered.length).toFixed(1);
+          document.getElementById('sumAvgScore').textContent = `${avg} / 100`;
+        } else {
+          document.getElementById('sumAvgScore').textContent = '0.0 / 100';
+        }
+      }
+
       if (filtered.length === 0) {
-        candidatesList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-800/30 rounded-xl border border-slate-800">No candidates match the current filters.</div>`;
+        candidatesList.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-800/30 rounded-xl border border-slate-800">No candidates match the current filters or cutoff score (≥ ${currentCutoff} pts).</div>`;
         return;
       }
 
@@ -409,15 +521,31 @@
                   #${c.rank}
                 </span>
                 <div>
-                  <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
-                    <span>${c.candidate_name}</span>
-                    ${c.github_metrics && c.github_metrics.username ? `
-                      <a href="https://github.com/${c.github_metrics.username}" target="_blank" class="text-xs text-slate-400 hover:text-white">
-                        <i class="fa-brands fa-github"></i>
-                      </a>
-                    ` : ''}
-                  </h3>
-                  <p class="text-xs text-slate-400">${c.file_name} • ${c.cgpa ? `CGPA: <span class="text-yellow-400 font-semibold">${c.cgpa}</span>/10` : 'CGPA: Not Listed'}</p>
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                      <span>${c.candidate_name}</span>
+                      ${c.github_metrics && c.github_metrics.username ? `
+                        <a href="https://github.com/${c.github_metrics.username}" target="_blank" title="GitHub Profile: ${c.github_metrics.username}" class="text-slate-400 hover:text-white transition">
+                          <i class="fa-brands fa-github text-sm"></i>
+                        </a>
+                      ` : ''}
+                    </h3>
+
+                    <!-- View Resume Link (Red Box Area in Image-1) -->
+                    <a href="/resumes/${c.file_name}" target="_blank" title="Open ${c.file_name} in new tab" class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-lg bg-red-500/15 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/30 transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf text-red-400 text-[11px]"></i>
+                      <span>View Resume</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-75"></i>
+                    </a>
+                  </div>
+
+                  <!-- Candidate Contact Info & File -->
+                  <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                    <span class="font-mono text-slate-400">${c.file_name}</span>
+                    ${c.email ? `<span class="text-slate-300">• <i class="fa-regular fa-envelope text-blue-400 mr-1"></i>${c.email}</span>` : ''}
+                    ${c.phone ? `<span class="text-slate-300">• <i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
+                    ${c.cgpa ? `<span class="text-slate-300">• CGPA: <span class="text-yellow-400 font-semibold">${c.cgpa}</span>/10</span>` : '• CGPA: Not Listed'}
+                  </p>
                 </div>
               </div>
 
@@ -492,8 +620,20 @@
           card.innerHTML = `
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
               <div>
-                <h3 class="text-base font-bold text-slate-200">${c.candidate_name}</h3>
-                <p class="text-xs text-slate-400">${c.file_name} • ${c.cgpa ? `CGPA: ${c.cgpa}/10` : 'CGPA: Not Listed'}</p>
+                <div class="flex flex-wrap items-center gap-2.5">
+                  <h3 class="text-base font-bold text-slate-200">${c.candidate_name}</h3>
+                  <!-- View Resume Link for Disqualified Candidate -->
+                  <a href="/resumes/${c.file_name}" target="_blank" title="View Resume PDF" class="inline-flex items-center space-x-1.5 px-2 py-0.5 text-xs font-semibold rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 border border-red-500/25 transition">
+                    <i class="fa-solid fa-file-pdf text-[11px]"></i>
+                    <span>View Resume</span>
+                  </a>
+                </div>
+                <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                  <span class="font-mono text-slate-400">${c.file_name}</span>
+                  ${c.email ? `<span class="text-slate-300">• <i class="fa-regular fa-envelope text-blue-400 mr-1"></i>${c.email}</span>` : ''}
+                  ${c.phone ? `<span class="text-slate-300">• <i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${c.phone}</span>` : ''}
+                  ${c.cgpa ? `<span class="text-slate-300">• CGPA: ${c.cgpa}/10</span>` : '• CGPA: Not Listed'}
+                </p>
               </div>
               <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
                 Disqualified
@@ -554,11 +694,6 @@
       if (!currentReport) return alert('No screening results available yet.');
       const blob = new Blob([JSON.stringify(currentReport, null, 2)], { type: 'application/json' });
       downloadBlob(blob, 'results.json');
-    });
-
-    btnExportCsv.addEventListener('click', () => {
-      if (!currentReport) return alert('No screening results available yet.');
-      window.location.href = '/download_csv';
     });
 
     function downloadBlob(blob, filename) {
